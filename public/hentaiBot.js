@@ -2,7 +2,11 @@ export function initializeHentaiBot() {
     const { db, ref, push } = window.firebaseApp;
 
     function fetchHentai() {
-        fetch('https://gelbooru.com/index.php?page=dapi&s=post&q=index&json=1&limit=1')
+        // Option 1: Using a CORS proxy service
+        const proxyUrl = 'https://corsproxy.io/?';
+        const targetUrl = 'https://gelbooru.com/index.php?page=dapi&s=post&q=index&json=1&limit=1';
+        
+        fetch(proxyUrl + encodeURIComponent(targetUrl))
             .then(response => response.json())
             .then(data => {
                 if (data.post && data.post.length > 0) {
