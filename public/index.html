@@ -7,122 +7,187 @@
     <link rel="stylesheet" href="/styles.css">
     <link rel="preload" href="/default-profile.png" as="image">
     <link href="https://fonts.googleapis.com/css2?family=VT323&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
 </head>
 <body class="theme-vaporwave">
     <div class="retro-container">
+        <!-- Login Screen -->
         <div class="retro-window" id="welcomeScreen">
-            <div class="retro-titlebar">miCP - Login</div>
+            <div class="retro-titlebar">
+                <span>miCP - Login</span>
+                <div class="window-controls">
+                    <div class="window-control minimize"></div>
+                    <div class="window-control maximize"></div>
+                    <div class="window-control close"></div>
+                </div>
+            </div>
             <div class="retro-content">
                 <form id="loginForm">
-                    <input type="text" id="usernameInput" placeholder="Nick (máx. 15)" maxlength="15" autocomplete="username" />
+                    <h2>Bem-vindo ao VaporChat</h2>
+                    <p>Escolha um tema antes de começar:</p>
+                    <select id="themeSelector">
+                        <option value="theme-vaporwave">Windows 98</option>
+                        <option value="theme-retro">DOS Terminal</option>
+                        <option value="theme-frutiger">Commodore 64</option>
+                        <option value="theme-win95">AMIGA</option>
+                        <option value="theme-modern">Modern Dark</option>
+                        <option value="theme-light">Modern Light</option>
+                        <option value="theme-cyberpunk">Cyberpunk</option>
+                        <option value="theme-matrix">Matrix</option>
+                    </select>
+                    
+                    <input type="text" id="usernameInput" placeholder="Nick (máx. 15)" maxlength="15" autocomplete="username" required />
                     <input type="password" id="passwordInput" placeholder="Senha (admin: 681227)" style="display: none;" autocomplete="current-password" />
-                    <input type="file" id="profilePhotoInput" accept="image/*" style="display: none;" />
-                    <button type="button" id="photoButton" onclick="document.getElementById('profilePhotoInput').click()">Foto</button>
-                    <div id="photoPreview" class="media-preview"></div>
-                    <button type="submit" id="joinButton">Conectar</button>
-                    <button type="button" id="adminLoginButton" onclick="toggleAdminLogin()">Admin</button>
-                    <div id="errorMessage" class="retro-text"></div>
+                    
+                    <div class="photo-input">
+                        <input type="file" id="profilePhotoInput" accept="image/*" style="display: none;" />
+                        <button type="button" id="photoButton" onclick="document.getElementById('profilePhotoInput').click()">
+                            <span class="material-icons">photo_camera</span> Foto de Perfil
+                        </button>
+                        <div id="photoPreview" class="media-preview"></div>
+                    </div>
+                    
+                    <div class="login-actions">
+                        <button type="submit" id="joinButton">Conectar</button>
+                        <button type="button" id="adminLoginButton" onclick="toggleAdminLogin()">Admin</button>
+                    </div>
+                    
+                    <div id="errorMessage" class="retro-text error-message"></div>
                 </form>
             </div>
         </div>
+        
+        <!-- Main Chat Window -->
         <div class="retro-window" id="chatContainer" style="display: none;">
-            <div class="retro-titlebar">miCP - <span id="currentUser"></span></div>
-            <div class="retro-content">
-                <div class="user-list">
-                    <div class="retro-panel">
-                        <div class="retro-label">Online</div>
-                        <ul id="userList" class="retro-user-list"></ul>
-                        <button id="logoutButton">Sair</button>
-                    </div>
-                    <div class="retro-panel ad-section">
-                        <div class="retro-label">Ad</div>
-                        <div class="adsterra-banner">
-                            <script type="text/javascript">
-                                atOptions = { 'key': '24e581f128309350f45e817f62637407', 'format': 'iframe', 'height': 250, 'width': 300, 'params': {} };
-                            </script>
-                            <script type="text/javascript" src="//www.highperformanceformat.com/24e581f128309350f45e817f62637407/invoke.js"></script>
-                        </div>
-                    </div>
+            <div class="retro-titlebar">
+                <span>miCP - <span id="currentUser"></span></span>
+                <div class="window-controls">
+                    <select id="themeSwitcher" title="Mudar Tema"></select>
+                    <span class="material-icons logout-btn" onclick="logoutUser()" title="Sair">exit_to_app</span>
                 </div>
+            </div>
+            
+            <div class="retro-content">
                 <div class="main-content">
                     <div class="retro-tabs">
-                        <button class="retro-tab active" id="forumTab" onclick="switchTab('#main')">Fórum</button>
-                        <button class="retro-tab" id="privateTab">Privado</button>
-                        <button class="retro-tab" id="profileTab" onclick="switchTab('#profile')">Perfil</button>
-                        <button class="retro-tab" id="hentaiTab" onclick="switchTab('#hentai')">Hentai</button>
+                        <div class="retro-tab active" id="forumTab" onclick="switchTab('#main')">Fórum</div>
+                        <div class="retro-tab" id="hentaiTab" onclick="switchTab('#hentai')">Imagens</div>
+                        <div class="retro-tab" id="privateTab">Privado</div>
+                        <div class="retro-tab" id="profileTab" onclick="switchTab('#profile')">Perfil</div>
                     </div>
-                    <div class="chat-box retro-text" id="chatBox"></div>
-                    <div class="chat-input" id="chatInput" style="display: none;">
-                        <input type="text" id="messageInput" placeholder="Digite aqui..." />
-                        <input type="file" id="mediaInput" accept="image/*,video/*" style="display: none;" />
-                        <button id="attachButton" onclick="document.getElementById('mediaInput').click()">📎</button>
-                        <div id="mediaPreview" class="media-preview"></div>
-                        <button id="sendButton" onclick="sendMessage()">Enviar</button>
-                    </div>
-                    <div class="profile-edit" id="profileEdit" style="display: none;">
-                        <img id="editPhotoPreview" src="" alt="Foto" class="profile-photo" />
-                        <input type="file" id="editPhotoInput" accept="image/*" style="display: none;" />
-                        <button onclick="document.getElementById('editPhotoInput').click()">Alterar Foto</button>
-                        <textarea id="editBioInput" placeholder="Sua bio (máx. 100)" maxlength="100"></textarea>
-                        <input type="color" id="profileColorInput" value="#ff00ff" />
-                        <select id="themeSelect">
-                            <option value="theme-vaporwave">Vaporwave</option>
-                            <option value="theme-retro">Retro</option>
-                            <option value="theme-frutiger">Frutiger Aero</option>
-                            <option value="theme-win95">Windows 95</option>
-                        </select>
-                        <button id="saveProfileButton">Salvar</button>
-                    </div>
-                    <div class="retro-status" id="statusBar"></div>
-                    <div class="ad-section bottom-ad">
-                        <div class="retro-label">Ad</div>
-                        <div class="adsterra-footer">
-                            <script type="text/javascript">
-                                atOptions = { 'key': '24e581f128309350f45e817f62637407', 'format': 'iframe', 'height': 90, 'width': 728, 'params': {} };
-                            </script>
-                            <script type="text/javascript" src="//www.highperformanceformat.com/24e581f128309350f45e817f62637407/invoke.js"></script>
+                    
+                    <div id="chatBox" class="chat-box"></div>
+                    
+                    <div id="chatInput" class="chat-input">
+                        <div class="input-container">
+                            <input type="text" id="messageInput" placeholder="Digite sua mensagem..." />
+                            <input type="file" id="mediaInput" accept="image/*,video/*" style="display: none;" />
+                            <button class="media-btn" onclick="document.getElementById('mediaInput').click()">
+                                <span class="material-icons">attach_file</span>
+                            </button>
+                            <button id="sendButton" onclick="sendMessage()">Enviar</button>
                         </div>
+                    </div>
+                    
+                    <div id="profileEdit" class="profile-edit" style="display: none;">
+                        <h3>Editar Perfil</h3>
+                        <div class="profile-form">
+                            <div>
+                                <input type="file" id="editPhotoInput" accept="image/*" style="display: none;" />
+                                <img id="editPhotoPreview" src="" alt="Foto" class="profile-photo" onclick="document.getElementById('editPhotoInput').click()" />
+                                <p>Clique na imagem para alterar</p>
+                            </div>
+                            
+                            <div class="profile-fields">
+                                <textarea id="editBioInput" placeholder="Sua bio (máx. 100)" maxlength="100"></textarea>
+                                <input type="color" id="profileColorInput" />
+                                <select id="themeSelect">
+                                    <option value="theme-vaporwave">Windows 98</option>
+                                    <option value="theme-retro">DOS Terminal</option>
+                                    <option value="theme-frutiger">Commodore 64</option>
+                                    <option value="theme-win95">AMIGA</option>
+                                    <option value="theme-modern">Modern Dark</option>
+                                    <option value="theme-light">Modern Light</option>
+                                    <option value="theme-cyberpunk">Cyberpunk</option>
+                                    <option value="theme-matrix">Matrix</option>
+                                </select>
+                                
+                                <select id="roleSelect" style="display: none;">
+                                    <option value="user">User</option>
+                                    <option value="vip">VIP</option>
+                                    <option value="moderator">Moderator</option>
+                                    <option value="admin">Admin</option>
+                                </select>
+                                
+                                <button id="saveProfileButton">Salvar</button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div id="statusBar" class="retro-status"></div>
+                </div>
+                
+                <div class="user-list">
+                    <div class="retro-panel">
+                        <div class="retro-label">Usuários Online</div>
+                        <ul id="userList" class="retro-user-list"></ul>
                     </div>
                 </div>
             </div>
         </div>
-        <div class="retro-window popup" id="adminPanel" style="display: none;">
-            <div class="retro-titlebar">Painel Admin</div>
-            <div class="retro-content">
-                <input type="text" id="newForumInput" placeholder="Nome do novo fórum" />
-                <button id="createForumButton">Criar Fórum</button>
-                <button onclick="closePopup('adminPanel')">Fechar</button>
+        
+        <!-- Profile Widget Popup -->
+        <div id="profileWidget" class="popup profile-widget" style="display: none;">
+            <div class="popup-header">
+                <div class="popup-title">Perfil do Usuário</div>
+                <button class="popup-close" onclick="closePopup('profileWidget')">&times;</button>
             </div>
-        </div>
-        <div class="retro-window popup profile-widget" id="profileWidget" style="display: none;">
-            <div class="retro-titlebar">Perfil</div>
-            <div class="retro-content">
-                <img id="widgetPhoto" src="" alt="Foto" class="profile-photo" />
-                <div id="widgetName" class="retro-text"></div>
-                <div id="widgetBio" class="retro-text"></div>
-                <button onclick="closePopup('profileWidget')">Fechar</button>
-            </div>
+            
+            <img id="widgetPhoto" src="" alt="Foto" class="profile-photo" />
+            <h3 id="widgetName"></h3>
+            <div id="widgetBio"></div>
+            
+            <div id="profileActions"></div>
         </div>
     </div>
+    
     <script type="module">
-        import { initializeApp } from 'https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js';
-        import { getDatabase, ref, set, onValue, off, push, update, runTransaction } from 'https://www.gstatic.com/firebasejs/9.22.0/firebase-database.js';
-        import { getStorage, ref as storageRef, uploadBytes, getDownloadURL } from 'https://www.gstatic.com/firebasejs/9.22.0/firebase-storage.js';
-        import { firebaseConfig } from '/firebase-config.js';
+        import { initializeFirebaseApp } from '/firebase-config.js';
         import { initializeChat } from '/client.js';
-        import { initializeAdmin } from '/admin.js';
-        import { initializeMedia } from '/media.js';
         import { initializeHentaiBot } from '/hentaiBot.js';
-
-        const app = initializeApp(firebaseConfig);
-        const db = getDatabase(app);
-        const storage = getStorage(app);
-
-        window.firebaseApp = { app, db, storage, ref, set, onValue, off, push, update, runTransaction, storageRef, uploadBytes, getDownloadURL };
-        initializeChat();
-        initializeAdmin();
-        initializeMedia();
-        initializeHentaiBot();
+        import { initializeAdmin } from '/admin.js';
+        
+        window.onload = function() {
+            // Initialize Firebase
+            initializeFirebaseApp();
+            
+            // Initialize chat
+            initializeChat();
+            
+            // Initialize bots
+            initializeHentaiBot();
+            
+            // Initialize admin panel
+            initializeAdmin();
+            
+            // Theme selector functionality
+            const themeSelector = document.getElementById('themeSelector');
+            themeSelector.addEventListener('change', function() {
+                document.body.className = this.value;
+            });
+            
+            // Add media preview functionality
+            document.getElementById('profilePhotoInput').addEventListener('change', function(e) {
+                const preview = document.getElementById('photoPreview');
+                if (e.target.files.length > 0) {
+                    const reader = new FileReader();
+                    reader.onload = function(event) {
+                        preview.innerHTML = `<img src="${event.target.result}" alt="Preview">`;
+                    };
+                    reader.readAsDataURL(e.target.files[0]);
+                }
+            });
+        };
     </script>
 </body>
 </html>

@@ -1,7 +1,9 @@
 // firebase-config.js
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js';
+import { getDatabase, ref, set, onValue, off, push, update, runTransaction, get } from 'https://www.gstatic.com/firebasejs/9.22.0/firebase-database.js';
+import { getStorage, ref as storageRef, uploadBytes, getDownloadURL } from 'https://www.gstatic.com/firebasejs/9.22.0/firebase-storage.js';
 
-// Your new Firebase configuration
+// Your Firebase configuration
 export const firebaseConfig = {
   apiKey: "AIzaSyAq9kTw-ZuPWnwSFzrfdBCRPpRBinCREdQ",
   authDomain: "xyzfyrebase.firebaseapp.com",
@@ -13,5 +15,29 @@ export const firebaseConfig = {
   measurementId: "G-SQPB4QBFFM"
 };
 
-// Initialize Firebase
-export const app = initializeApp(firebaseConfig);
+// Initialize Firebase and expose functionality to the window object
+export function initializeFirebaseApp() {
+  const app = initializeApp(firebaseConfig);
+  const db = getDatabase(app);
+  const storage = getStorage(app);
+  
+  // Create a global object with all Firebase functionality
+  window.firebaseApp = { 
+    app, 
+    db, 
+    storage, 
+    ref, 
+    set, 
+    onValue, 
+    off, 
+    push, 
+    update, 
+    runTransaction, 
+    get,
+    storageRef, 
+    uploadBytes, 
+    getDownloadURL 
+  };
+  
+  return window.firebaseApp;
+}
