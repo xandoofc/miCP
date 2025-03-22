@@ -7,7 +7,7 @@
     <link rel="stylesheet" href="/styles.css">
     <link href="https://fonts.googleapis.com/css2?family=VT323&display=swap" rel="stylesheet">
     <link rel="preload" href="/default-profile.png" as="image">
-    <!-- Adsterra Pop-up 1: Popunder ao carregar -->
+   
     <script type="text/javascript">
         var adsterraPopUp1 = {
             key: 'd556b97f30a68f48c48b9698bb048bcc',
@@ -21,8 +21,6 @@
             document.head.appendChild(s);
         })();
     </script>
-    <!-- Adsterra Pop-up 2: Interstitial -->
-    <script type="text/javascript" id="adsterraInterstitialScript"></script>
 </head>
 <body>
     <div class="welcome-screen" id="welcomeScreen">
@@ -76,7 +74,7 @@
     <!-- Firebase SDK como módulos -->
     <script type="module">
         import { initializeApp } from 'https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js';
-        import { getDatabase, ref, set, onValue, off, push, update, transaction } from 'https://www.gstatic.com/firebasejs/9.22.0/firebase-database.js';
+        import { getDatabase, ref, set, onValue, off, push, update, runTransaction } from 'https://www.gstatic.com/firebasejs/9.22.0/firebase-database.js';
         import { getStorage, ref as storageRef, uploadBytes, getDownloadURL } from 'https://www.gstatic.com/firebasejs/9.22.0/firebase-storage.js';
         import { firebaseConfig } from '/firebase-config.js';
         import { initializeChat } from '/client.js';
@@ -85,7 +83,7 @@
         const db = getDatabase(app);
         const storage = getStorage(app);
 
-        window.firebaseApp = { app, db, storage, ref, set, onValue, off, push, update, transaction, storageRef, uploadBytes, getDownloadURL };
+        window.firebaseApp = { app, db, storage, ref, set, onValue, off, push, update, runTransaction, storageRef, uploadBytes, getDownloadURL };
         initializeChat();
     </script>
 </body>

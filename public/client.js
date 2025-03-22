@@ -1,5 +1,5 @@
 export function initializeChat() {
-    const { db, storage, ref, set, onValue, off, push, update, transaction, storageRef, uploadBytes, getDownloadURL } = window.firebaseApp;
+    const { db, storage, ref, set, onValue, off, push, update, runTransaction, storageRef, uploadBytes, getDownloadURL } = window.firebaseApp;
 
     const welcomeScreen = document.getElementById('welcomeScreen');
     const chatContainer = document.getElementById('chatContainer');
@@ -148,7 +148,9 @@ export function initializeChat() {
     function pushMessage(message, target) {
         const dbRef = target === '#main' ? ref(db, 'forumMessages') : ref(db, 'privateMessages/' + [username, target].sort().join('-'));
         push(dbRef, message).then(() => {
-            transaction(ref(db, 'users/' + userId + '/messageCount'), count => (count || 0) + 1);
+            runTransaction(ref(db, 'users/' + userId + '/messageCount'), (count) => {
+                return (count || 0) + 1;
+            });
         });
     }
 
@@ -211,6 +213,8 @@ export function initializeChat() {
     }
 
     function triggerAdsterraInterstitial() {
+        // Comentado temporariamente devido a 404
+        
         document.getElementById('adsterraInterstitialScript').innerHTML = `
             var adsterraPopUp2 = {
                 key: 'd556b97f30a68f48c48b9698bb048bcc',
@@ -224,9 +228,12 @@ export function initializeChat() {
                 document.head.appendChild(s);
             })();
         `;
+        
     }
 
     function triggerAdsterraPopunder() {
+        // Comentado temporariamente devido a 404
+        
         const script = document.createElement('script');
         script.innerHTML = `
             var adsterraPopUp3 = {
@@ -242,6 +249,7 @@ export function initializeChat() {
             })();
         `;
         document.head.appendChild(script);
+        
     }
 
     logoutButton.addEventListener('click', () => {
