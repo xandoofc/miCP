@@ -1,31 +1,31 @@
 body {
     margin: 0;
     padding: 1vw;
-    background: #000;
-    font-family: 'VT323', monospace;
-    color: #00ff00;
-    font-size: 1.2rem;
+    background: #008080; /* Teal do Windows 95 */
+    font-family: 'MS Sans Serif', 'VT323', monospace;
+    color: #000;
+    font-size: 1rem;
 }
 
 .retro-border {
     background: #c0c0c0;
-    border: 2px solid #fff;
-    border-right-color: #000;
-    border-bottom-color: #000;
-    box-shadow: 2px 2px 0 #ff00ff, 4px 4px 0 #00ffff;
+    border: 2px outset #fff;
+    box-shadow: inset 1px 1px #000, inset -1px -1px #808080;
 }
 
 .window-title {
-    background: #000080;
+    background: linear-gradient(to right, #000080, #1084d0);
     color: #fff;
-    padding: 0.5rem;
-    text-align: center;
-    text-transform: uppercase;
-    border-bottom: 2px dashed #00ff00;
+    padding: 0.3rem 0.5rem;
+    text-align: left;
+    font-weight: bold;
+    border-bottom: 1px solid #000;
 }
 
 .retro-text {
-    text-shadow: 1px 1px #ff00ff, -1px -1px #00ffff;
+    font-family: 'MS Sans Serif', 'VT323', monospace;
+    color: #000;
+    text-shadow: none;
 }
 
 .welcome-screen, .container, .popup {
@@ -38,37 +38,40 @@ body {
     padding: 1rem;
 }
 
-input, button {
-    font-family: 'VT323', monospace;
-    font-size: 1.2rem;
-    padding: 0.5rem;
-    border: 2px solid #000;
+input, button, textarea {
+    font-family: 'MS Sans Serif', 'VT323', monospace;
+    font-size: 1rem;
+    padding: 0.3rem;
+    border: 2px inset #fff;
     background: #fff;
     color: #000;
 }
 
 button {
-    background: #ff00ff;
-    color: #fff;
+    background: #c0c0c0;
+    border: 2px outset #fff;
     cursor: pointer;
 }
 
 button:hover {
-    background: #00ffff;
-    color: #000;
+    background: #e0e0e0;
+}
+
+button:active {
+    border: 2px inset #fff;
 }
 
 .chat-body {
     display: flex;
-    background: #000;
-    border-top: 2px dashed #00ff00;
+    background: #c0c0c0;
+    border-top: 1px solid #000;
     min-height: 85vh;
 }
 
 .contacts {
     width: 30%;
     padding: 1rem;
-    border-right: 2px dashed #00ff00;
+    border-right: 1px solid #000;
     overflow-y: auto;
 }
 
@@ -84,6 +87,7 @@ button:hover {
 
 .retro-list li:hover {
     background: #000080;
+    color: #fff;
 }
 
 .chat-area {
@@ -94,25 +98,28 @@ button:hover {
 
 .tabs {
     display: flex;
-    background: #000080;
+    background: #c0c0c0;
+    border-bottom: 1px solid #000;
 }
 
 .tab {
     flex: 1;
     padding: 0.5rem;
-    color: #fff;
     text-align: center;
+    border-right: 1px solid #808080;
 }
 
 .tab.active {
-    background: #ff00ff;
+    background: #e0e0e0;
+    border-bottom: none;
 }
 
 .chat-box {
     flex: 1;
     padding: 1rem;
     overflow-y: auto;
-    background: #000;
+    background: #fff;
+    border: 2px inset #fff;
 }
 
 .message {
@@ -125,33 +132,29 @@ button:hover {
     width: 30px;
     height: 30px;
     margin-right: 0.5rem;
-    border: 2px solid #00ff00;
+    border: 1px solid #000;
 }
 
 .message img.media, .message .video-player video {
     max-width: 25vw;
     margin-left: 1rem;
-    border: 2px solid #00ff00;
+    border: 1px solid #000;
 }
 
 .video-player {
-    position: relative;
-    display: inline-block;
-    border: 2px solid #ff00ff;
-    box-shadow: 2px 2px 0 #00ffff;
-    background: #000080;
+    background: #c0c0c0;
     padding: 0.5rem;
+    border: 2px outset #fff;
 }
 
 .video-player video {
     max-width: 25vw;
 }
 
-.chat-input {
-    display: flex;
+.chat-input, .profile-edit {
     padding: 1rem;
-    gap: 0.5rem;
-    background: #000080;
+    background: #c0c0c0;
+    border-top: 1px solid #000;
 }
 
 .chat-input input[type="text"] {
@@ -161,12 +164,13 @@ button:hover {
 .media-preview img, .media-preview video {
     max-width: 100px;
     margin-top: 0.5rem;
+    border: 1px solid #000;
 }
 
 .status-bar {
     padding: 0.5rem;
-    background: #000080;
-    color: #fff;
+    background: #c0c0c0;
+    border-top: 1px solid #000;
 }
 
 .popup {
@@ -179,8 +183,14 @@ button:hover {
 
 .profile-photo {
     max-width: 100px;
-    border: 2px solid #00ff00;
+    border: 1px solid #000;
     margin: 1rem 0;
+}
+
+.profile-edit textarea {
+    width: 100%;
+    height: 80px;
+    resize: none;
 }
 
 /* Mobile */
@@ -193,15 +203,15 @@ button:hover {
     }
     .contacts {
         border-right: none;
-        border-bottom: 2px dashed #00ff00;
+        border-bottom: 1px solid #000;
         max-height: 25vh;
     }
     .chat-input {
         flex-direction: column;
     }
     input, button {
-        font-size: 1.5rem;
-        padding: 1rem;
+        font-size: 1.2rem;
+        padding: 0.5rem;
     }
     .message img.media, .message .video-player video {
         max-width: 60vw;
