@@ -845,3 +845,134 @@ video.media::-webkit-media-controls {
         height: 24px;
     }
 }
+
+/* Settings Panel Styles */
+.settings-panel {
+    padding: 15px;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.settings-form {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.setting-group {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px;
+    border-radius: 4px;
+    background: rgba(0, 0, 0, 0.1);
+}
+
+.setting-group label {
+    font-weight: bold;
+    margin-right: 10px;
+}
+
+/* Ensure images always have a fallback */
+.profile-pic, .media, .profile-photo {
+    position: relative;
+    background-color: rgba(0, 0, 0, 0.1);
+    background-image: url('/default-profile.png');
+    background-size: contain;
+    background-position: center;
+    background-repeat: no-repeat;
+}
+
+/* Add to existing CSS file */
+.window-controls {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.logout-btn {
+    cursor: pointer;
+    opacity: 0.8;
+    transition: all 0.2s ease;
+}
+
+.logout-btn:hover {
+    opacity: 1;
+    transform: scale(1.1);
+}
+
+.error-message {
+    color: #ff0000;
+    margin-top: 10px;
+    text-align: center;
+}
+
+/* Mobile responsiveness for settings */
+@media (max-width: 768px) {
+    .settings-panel {
+        padding: 10px;
+    }
+    
+    .setting-group {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 8px;
+    }
+    
+    .setting-group label {
+        margin-bottom: 5px;
+        width: 100%;
+    }
+    
+    .setting-group select, 
+    .setting-group input[type="checkbox"] {
+        width: 100%;
+    }
+}
+
+/* Admin Panel Styles */
+.admin-content {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    padding: 10px;
+}
+
+.admin-group {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 15px;
+}
+
+.admin-user-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px;
+    border-radius: 4px;
+    margin-bottom: 5px;
+    background: rgba(0, 0, 0, 0.1);
+}
+
+.admin-user-pic {
+    width: 24px;
+    height: 24px;
+    margin-right: 8px;
+    border: 1px solid #ffffff;
+}
+
+.user-info {
+    display: flex;
+    align-items: center;
+}
+
+.user-actions {
+    display: flex;
+    gap: 5px;
+}
+
+.save-role-btn {
+    padding: 3px 8px;
+    font-size: 12px;
+}

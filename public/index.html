@@ -62,7 +62,6 @@
             <div class="retro-titlebar">
                 <span>miCP - <span id="currentUser"></span></span>
                 <div class="window-controls">
-                    <select id="themeSwitcher" title="Mudar Tema"></select>
                     <span class="material-icons logout-btn" onclick="logoutUser()" title="Sair">exit_to_app</span>
                 </div>
             </div>
@@ -74,6 +73,7 @@
                         <div class="retro-tab" id="hentaiTab" onclick="switchTab('#hentai')">Imagens</div>
                         <div class="retro-tab" id="privateTab">Privado</div>
                         <div class="retro-tab" id="profileTab" onclick="switchTab('#profile')">Perfil</div>
+                        <div class="retro-tab" id="settingsTab" onclick="switchTab('#settings')">Configurações</div>
                     </div>
                     
                     <div id="chatBox" class="chat-box"></div>
@@ -101,16 +101,6 @@
                             <div class="profile-fields">
                                 <textarea id="editBioInput" placeholder="Sua bio (máx. 100)" maxlength="100"></textarea>
                                 <input type="color" id="profileColorInput" />
-                                <select id="themeSelect">
-                                    <option value="theme-vaporwave">Windows 98</option>
-                                    <option value="theme-retro">DOS Terminal</option>
-                                    <option value="theme-frutiger">Commodore 64</option>
-                                    <option value="theme-win95">AMIGA</option>
-                                    <option value="theme-modern">Modern Dark</option>
-                                    <option value="theme-light">Modern Light</option>
-                                    <option value="theme-cyberpunk">Cyberpunk</option>
-                                    <option value="theme-matrix">Matrix</option>
-                                </select>
                                 
                                 <select id="roleSelect" style="display: none;">
                                     <option value="user">User</option>
@@ -121,6 +111,41 @@
                                 
                                 <button id="saveProfileButton">Salvar</button>
                             </div>
+                        </div>
+                    </div>
+                    
+                    <div id="settingsPanel" class="settings-panel" style="display: none;">
+                        <h3>Configurações</h3>
+                        <div class="settings-form">
+                            <div class="setting-group">
+                                <label for="themeSwitcher">Tema:</label>
+                                <select id="themeSwitcher">
+                                    <option value="theme-vaporwave">Windows 98</option>
+                                    <option value="theme-retro">DOS Terminal</option>
+                                    <option value="theme-frutiger">Commodore 64</option>
+                                    <option value="theme-win95">AMIGA</option>
+                                    <option value="theme-modern">Modern Dark</option>
+                                    <option value="theme-light">Modern Light</option>
+                                    <option value="theme-cyberpunk">Cyberpunk</option>
+                                    <option value="theme-matrix">Matrix</option>
+                                </select>
+                            </div>
+                            
+                            <div class="setting-group">
+                                <label for="enableSound">Sons:</label>
+                                <input type="checkbox" id="enableSound" checked>
+                            </div>
+                            
+                            <div class="setting-group">
+                                <label for="notificationsSetting">Notificações:</label>
+                                <select id="notificationsSetting">
+                                    <option value="all">Todas</option>
+                                    <option value="mentions">Apenas menções</option>
+                                    <option value="none">Nenhuma</option>
+                                </select>
+                            </div>
+                            
+                            <button id="saveSettingsButton">Salvar Configurações</button>
                         </div>
                     </div>
                     
@@ -155,7 +180,6 @@
         import { initializeFirebaseApp } from '/firebase-config.js';
         import { initializeChat } from '/client.js';
         import { initializeHentaiBot } from '/hentaiBot.js';
-        import { initializeAdmin } from '/admin.js';
         
         window.onload = function() {
             // Initialize Firebase
@@ -167,26 +191,41 @@
             // Initialize bots
             initializeHentaiBot();
             
-            // Initialize admin panel
-            initializeAdmin();
-            
             // Theme selector functionality
             const themeSelector = document.getElementById('themeSelector');
-            themeSelector.addEventListener('change', function() {
-                document.body.className = this.value;
-            });
+            if (themeSelector) {
+                themeSelector.addEventListener('change', function() {
+                    document.body.className = this.value;
+                });
+            }
             
             // Add media preview functionality
-            document.getElementById('profilePhotoInput').addEventListener('change', function(e) {
-                const preview = document.getElementById('photoPreview');
-                if (e.target.files.length > 0) {
-                    const reader = new FileReader();
-                    reader.onload = function(event) {
-                        preview.innerHTML = `<img src="${event.target.result}" alt="Preview">`;
-                    };
-                    reader.readAsDataURL(e.target.files[0]);
-                }
-            });
+            const profilePhotoInput = document.getElementById('profilePhotoInput');
+            if (profilePhotoInput) {
+                profilePhotoInput.addEventListener('change', function(e) {
+                    const preview = document.getElementById('photoPreview');
+                    if (e.target.files.length > 0) {
+                        const reader = new FileReader();
+                        reader.onload = function(event) {
+                            preview.innerHTML = `<img src="${event.target.result}" alt="Preview">`;
+                        };
+                        reader.readAsDataURL(e.target.files[0]);
+                    }
+                });
+            }
+            
+            // Check if admin.js exists before initializing
+            fetch('/admin.js')
+                .then(response => {
+                    if (response.ok) {
+                        import('/admin.js').then(module => {
+                            if (typeof module.initializeAdmin === 'function') {
+                                module.initializeAdmin();
+                            }
+                        }).catch(err => console.log('Admin module not available:', err));
+                    }
+                })
+                .catch(() => console.log('Admin.js not available'));
         };
     </script>
 </body>

@@ -17,17 +17,19 @@ export function initializeChat() {
         privateTab: document.getElementById('privateTab'),
         profileTab: document.getElementById('profileTab'),
         hentaiTab: document.getElementById('hentaiTab'),
+        settingsTab: document.getElementById('settingsTab'),
         sendButton: document.getElementById('sendButton'),
         chatInput: document.getElementById('chatInput'),
         statusBar: document.getElementById('statusBar'),
         loginForm: document.getElementById('loginForm'),
         profileEdit: document.getElementById('profileEdit'),
+        settingsPanel: document.getElementById('settingsPanel'),
         profileWidget: document.getElementById('profileWidget'),
         widgetPhoto: document.getElementById('widgetPhoto'),
         widgetName: document.getElementById('widgetName'),
         widgetBio: document.getElementById('widgetBio'),
         roleSelect: document.getElementById('roleSelect'),
-        themeSelector: document.getElementById('themeSelector')
+        themeSelector: document.getElementById('themeSwitcher')
     };
 
     let username = localStorage.getItem('username') || '';
@@ -80,6 +82,42 @@ export function initializeChat() {
         });
     }
 
+    // Event listener for settings save button
+    const saveSettingsButton = document.getElementById('saveSettingsButton');
+    if (saveSettingsButton) {
+        saveSettingsButton.addEventListener('click', saveSettings);
+    }
+
+    function saveSettings() {
+        // Get settings values
+        const selectedTheme = elements.themeSelector ? elements.themeSelector.value : 'theme-vaporwave';
+        const enableSound = document.getElementById('enableSound') ? document.getElementById('enableSound').checked : true;
+        const notificationSetting = document.getElementById('notificationsSetting') ? 
+            document.getElementById('notificationsSetting').value : 'all';
+        
+        // Save to localStorage
+        localStorage.setItem('theme', selectedTheme);
+        localStorage.setItem('enableSound', enableSound);
+        localStorage.setItem('notifications', notificationSetting);
+        
+        // Apply theme
+        document.body.className = selectedTheme;
+        
+        // Save to database if logged in
+        if (username) {
+            update(ref(db, 'users/' + userId), { 
+                theme: selectedTheme,
+                settings: {
+                    sound: enableSound,
+                    notifications: notificationSetting
+                }
+            });
+        }
+        
+        // Feedback
+        alert('Configurações salvas!');
+    }
+
     function generateUserId() {
         const id = 'user_' + Math.random().toString(36).substr(2, 9);
         localStorage.setItem('userId', id);
@@ -102,7 +140,7 @@ export function initializeChat() {
                 loginUser(
                     userData.username, 
                     userId, 
-                    userData.photo, 
+                    userData.photo || '/default-profile.png', 
                     userData.bio, 
                     userData.theme, 
                     userData.color,
@@ -210,7 +248,7 @@ export function initializeChat() {
             const roleInfo = roles[user.role || 'user'];
             const roleIcon = roleInfo ? `<span class="role-icon ${user.role}"></span>` : '';
             
-            li.innerHTML = `${roleIcon}<img src="${user.photo}" class="profile-pic" alt="${user.username}" onerror="this.src='/default-profile.png'"> ${user.username}`;
+            li.innerHTML = `${roleIcon}<img src="${user.photo || '/default-profile.png'}" class="profile-pic" alt="${user.username}" onerror="this.src='/default-profile.png'"> ${user.username}`;
             li.style.color = user.color;
             li.onclick = () => showProfileWidget(user);
             
@@ -224,16 +262,13 @@ export function initializeChat() {
         if (target === '#profile') {
             elements.chatBox.innerHTML = `<div class="system-message">--- Perfil ---</div>`;
             elements.profileEdit.style.display = 'block';
+            elements.settingsPanel.style.display = 'none';
             
             const user = userProfiles.get(username);
             if (user) {
-                document.getElementById('editPhotoPreview').src = user.photo;
-                document.getElementById('editBioInput').value = user.bio;
-                document.getElementById('profileColorInput').value = user.color;
-                
-                if (document.getElementById('themeSelect')) {
-                    document.getElementById('themeSelect').value = user.theme;
-                }
+                document.getElementById('editPhotoPreview').src = user.photo || '/default-profile.png';
+                document.getElementById('editBioInput').value = user.bio || 'Sem bio ainda.';
+                document.getElementById('profileColorInput').value = user.color || '#ffffff';
                 
                 // Show role selector for admins
                 if (elements.roleSelect && userRole === 'admin') {
@@ -244,6 +279,32 @@ export function initializeChat() {
             }
             return;
         }
+        
+        if (target === '#settings') {
+            elements.chatBox.innerHTML = `<div class="system-message">--- Configurações ---</div>`;
+            elements.profileEdit.style.display = 'none';
+            elements.settingsPanel.style.display = 'block';
+            
+            // Load settings from localStorage
+            if (elements.themeSelector) {
+                elements.themeSelector.value = localStorage.getItem('theme') || 'theme-vaporwave';
+            }
+            
+            const enableSound = document.getElementById('enableSound');
+            if (enableSound) {
+                enableSound.checked = localStorage.getItem('enableSound') !== 'false';
+            }
+            
+            const notificationSetting = document.getElementById('notificationsSetting');
+            if (notificationSetting) {
+                notificationSetting.value = localStorage.getItem('notifications') || 'all';
+            }
+            
+            return;
+        }
+
+        elements.profileEdit.style.display = 'none';
+        elements.settingsPanel.style.display = 'none';
 
         const dbRef = target === '#main' ? ref(db, 'forumMessages') : 
                     target === '#hentai' ? ref(db, 'hentaiMessages') : 
@@ -252,7 +313,7 @@ export function initializeChat() {
         off(dbRef);
         onValue(dbRef, (snapshot) => {
             const targetName = target === '#main' ? 'Fórum' : 
-                            target === '#hentai' ? 'Hentai (Somente Leitura)' : 
+                            target === '#hentai' ? 'Imagens (Somente Leitura)' : 
                             `Chat com ${target}`;
             
             elements.chatBox.innerHTML = `<div class="system-message">--- ${targetName} ---</div>`;
@@ -333,9 +394,12 @@ export function initializeChat() {
             const filePath = data.media.filePath || '';
             
             // Replace problematic image sources with fallbacks
-            if (filePath.includes('placeholder.com') || 
+            if (!filePath || 
+                filePath === 'null' || 
+                filePath === 'undefined' || 
+                filePath.includes('placeholder.com') || 
                 filePath.includes('storageimagedisplay.com') || 
-                !filePath.startsWith('http') && !filePath.startsWith('blob:')) {
+                (!filePath.startsWith('http') && !filePath.startsWith('blob:'))) {
                 data.media.filePath = '/default-profile.png';
             }
             
@@ -350,6 +414,11 @@ export function initializeChat() {
                 mediaContent = `<img src="${data.media.filePath}" class="media" alt="Media" 
                     onerror="this.src='/default-profile.png'; this.onerror=null;">`;
             }
+        }
+        
+        // Ensure photo has a default fallback
+        if (!data.photo || data.photo === 'null' || data.photo === 'undefined') {
+            data.photo = '/default-profile.png';
         }
         
         // Add role badge if user has a special role
@@ -412,16 +481,16 @@ export function initializeChat() {
     }
 
     function switchTab(target) {
-        if (target.includes('#') && target !== '#main' && target !== '#hentai' && target !== '#profile') return;
+        if (target.includes('#') && target !== '#main' && target !== '#hentai' && target !== '#profile' && target !== '#settings') return;
         
         currentChat = target;
         elements.forumTab.classList.toggle('active', target === '#main');
-        elements.privateTab.classList.toggle('active', target !== '#main' && target !== '#profile' && target !== '#hentai');
+        elements.privateTab.classList.toggle('active', target !== '#main' && target !== '#profile' && target !== '#hentai' && target !== '#settings');
         elements.profileTab.classList.toggle('active', target === '#profile');
         elements.hentaiTab.classList.toggle('active', target === '#hentai');
+        elements.settingsTab.classList.toggle('active', target === '#settings');
         
-        elements.chatInput.style.display = target === '#profile' || target === '#hentai' ? 'none' : 'block';
-        elements.profileEdit.style.display = 'none';
+        elements.chatInput.style.display = (target === '#profile' || target === '#hentai' || target === '#settings') ? 'none' : 'block';
         
         loadMessages(target);
     }

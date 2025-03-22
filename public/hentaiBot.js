@@ -12,15 +12,98 @@ export function initializeHentaiBot() {
         '-video+rating:safe+beach'
     ];
 
+    // Alternate APIs to try if Gelbooru fails
+    const imageAPIs = [
+        {
+            name: 'Gelbooru',
+            url: (tags) => `https://gelbooru.com/index.php?page=dapi&s=post&q=index&json=1&limit=10&tags=${tags}`,
+            parser: (data) => {
+                if (data.post && data.post.length > 0) {
+                    const post = data.post[Math.floor(Math.random() * data.post.length)];
+                    return {
+                        url: post.file_url,
+                        tags: post.tags
+                    };
+                }
+                return null;
+            }
+        },
+        {
+            name: 'Picsum',
+            url: () => 'https://picsum.photos/600',
+            parser: () => {
+                return {
+                    url: 'https://picsum.photos/600',
+                    tags: 'random,photo,landscape'
+                };
+            }
+        },
+        {
+            name: 'Local',
+            url: () => null,
+            parser: () => {
+                // Use a local fallback image
+                return {
+                    url: '/default-profile.png',
+                    tags: 'local,fallback,image'
+                };
+            }
+        }
+    ];
+
+    // Keep track of failed attempts
+    let currentAPIIndex = 0;
+    let failCount = 0;
+
     function fetchHentai() {
         // Get a random tag set
         const randomTags = tagSets[Math.floor(Math.random() * tagSets.length)];
         
-        // Use the CORS proxy
-        const proxyUrl = 'https://corsproxy.io/?';
-        const targetUrl = `https://gelbooru.com/index.php?page=dapi&s=post&q=index&json=1&limit=10&tags=${randomTags}`;
+        // Use the current API
+        const currentAPI = imageAPIs[currentAPIIndex];
         
-        fetch(proxyUrl + encodeURIComponent(targetUrl))
+        // Generate a message with the bot name
+        const botMessage = {
+            user: 'ImageBot',
+            text: 'Carregando imagem...',
+            timestamp: Date.now(),
+            color: getRandomColor(),
+            photo: '/default-profile.png',
+            role: 'bot'
+        };
+        
+        // If we're using the local fallback directly
+        if (currentAPIIndex === imageAPIs.length - 1) {
+            const result = currentAPI.parser();
+            if (result) {
+                botMessage.text = `Tags: ${result.tags}`;
+                botMessage.media = { 
+                    filePath: result.url,
+                    type: 'image'
+                };
+                push(ref(db, 'hentaiMessages'), botMessage);
+                return;
+            }
+        }
+        
+        // Try to fetch from API if not local
+        const apiUrl = currentAPI.url(randomTags);
+        
+        // If it's Picsum (direct image), use it directly
+        if (currentAPIIndex === 1) {
+            botMessage.text = `Tags: random,landscape,photo`;
+            botMessage.media = { 
+                filePath: apiUrl,
+                type: 'image'
+            };
+            push(ref(db, 'hentaiMessages'), botMessage);
+            return;
+        }
+        
+        // Use a CORS proxy for other APIs
+        const proxyUrl = 'https://corsproxy.io/?';
+        
+        fetch(proxyUrl + encodeURIComponent(apiUrl))
             .then(response => {
                 if (!response.ok) {
                     throw new Error(`Server responded with ${response.status}`);
@@ -28,44 +111,49 @@ export function initializeHentaiBot() {
                 return response.json();
             })
             .then(data => {
-                if (data.post && data.post.length > 0) {
-                    // Get a random image from the results
-                    const randomIndex = Math.floor(Math.random() * data.post.length);
-                    const post = data.post[randomIndex];
-                    
-                    // Validate image URL
-                    if (!post.file_url || !post.file_url.startsWith('http')) {
-                        throw new Error('Invalid image URL');
-                    }
-                    
-                    // Create message with random colors
-                    const message = {
-                        user: 'ImageBot',
-                        text: `Tags: ${post.tags.split(' ').slice(0, 10).join(', ')}`,
-                        media: { filePath: post.file_url, type: 'image' },
-                        timestamp: Date.now(),
-                        color: getRandomColor(),
-                        role: 'bot'
-                    };
-                    
-                    push(ref(db, 'hentaiMessages'), message);
-                } else {
+                const result = currentAPI.parser(data);
+                if (!result) {
                     throw new Error('No images found');
                 }
-            })
-            .catch(err => {
-                console.error('HentaiBot error:', err);
                 
-                // Create fallback message with local image
-                const fallbackMessage = {
-                    user: 'ImageBot',
-                    text: 'Não foi possível carregar imagens neste momento.',
-                    timestamp: Date.now(),
-                    color: getRandomColor(),
-                    role: 'bot'
+                // Validate image URL
+                if (!result.url || !result.url.startsWith('http')) {
+                    throw new Error('Invalid image URL');
+                }
+                
+                // Update message with image info
+                botMessage.text = `Tags: ${result.tags}`;
+                botMessage.media = { 
+                    filePath: result.url,
+                    type: 'image'
                 };
                 
-                push(ref(db, 'hentaiMessages'), fallbackMessage);
+                // Reset fail count on success
+                failCount = 0;
+                
+                push(ref(db, 'hentaiMessages'), botMessage);
+            })
+            .catch(err => {
+                console.warn(`${currentAPI.name} error:`, err.message);
+                
+                // Increment fail count and try next API
+                failCount++;
+                
+                // Switch to next API after too many failures
+                if (failCount >= 3) {
+                    currentAPIIndex = (currentAPIIndex + 1) % imageAPIs.length;
+                    failCount = 0;
+                    console.log(`Switching to ${imageAPIs[currentAPIIndex].name} API`);
+                }
+                
+                // Create fallback message with local image
+                botMessage.text = 'Tags: bot,image,fallback';
+                botMessage.media = { 
+                    filePath: '/default-profile.png',
+                    type: 'image'
+                };
+                
+                push(ref(db, 'hentaiMessages'), botMessage);
             });
     }
 
@@ -77,5 +165,10 @@ export function initializeHentaiBot() {
 
     // Fetch an image immediately and then every 30 seconds
     fetchHentai();
-    setInterval(fetchHentai, 30000);
+    const interval = setInterval(fetchHentai, 30000);
+    
+    // Clean up on page unload
+    window.addEventListener('beforeunload', () => {
+        clearInterval(interval);
+    });
 }
