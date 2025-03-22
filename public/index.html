@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>miCP - mIRC Retro</title>
+    <link rel="stylesheet" href="/styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=VT323&display=swap" rel="stylesheet">
+    <link rel="preload" href="/default-profile.png" as="image">
+    <!-- Adsterra Pop-up 1: Popunder ao carregar a página -->
+    <script type="text/javascript">
+        var adsterraPopUp1 = {
+            key: 'd556b97f30a68f48c48b9698bb048bcc',
+            format: 'popunder',
+            params: {}
+        };
+        (function() {
+            var s = document.createElement('script');
+            s.src = '//www.topcreativeformat.com/d556b97f30a68f48c48b9698bb048bcc/invoke.js';
+            s.async = true;
+            document.head.appendChild(s);
+        })();
+    </script>
+    <!-- Adsterra Pop-up 2: Interstitial (definido no client.js) -->
+    <script type="text/javascript" id="adsterraInterstitialScript"></script>
+</head>
+<body>
+    <div class="welcome-screen" id="welcomeScreen">
+        <div class="window retro-border">
+            <div class="window-title">miCP - Login</div>
+            <div class="window-content">
+                <input type="text" id="usernameInput" placeholder="Nick (máx. 15)" maxlength="15" />
+                <button id="joinButton">Conectar</button>
+                <div id="errorMessage" class="retro-text"></div>
+            </div>
+        </div>
+    </div>
+    <div class="container" id="chatContainer" style="display: none;">
+        <div class="window retro-border">
+            <div class="window-title">miCP - <span id="currentUser"></span></div>
+            <div class="chat-body">
+                <div class="contacts">
+                    <div class="section-title retro-text">Online</div>
+                    <ul id="userList" class="retro-list"></ul>
+                    <button id="logoutButton">Sair</button>
+                </div>
+                <div class="chat-area">
+                    <div class="tabs">
+                        <button class="tab active" id="forumTab" onclick="switchTab('#main')">Fórum</button>
+                        <button class="tab" id="privateTab">Privado</button>
+                    </div>
+                    <div class="chat-box retro-text" id="chatBox"></div>
+                    <div class="chat-input">
+                        <input type="text" id="messageInput" placeholder="Digite aqui..." />
+                        <input type="file" id="mediaInput" accept="image/*,video/*" style="display: none;" />
+                        <button id="attachButton" onclick="document.getElementById('mediaInput').click()">📎</button>
+                        <div id="mediaPreview" class="media-preview"></div>
+                        <button id="sendButton" onclick="sendMessage()">Enviar</button>
+                    </div>
+                    <div class="status-bar retro-text" id="statusBar"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="popup" id="profilePopup" style="display: none;">
+        <div class="window retro-border">
+            <div class="window-title">Perfil</div>
+            <div class="window-content">
+                <img id="popupPhoto" src="" alt="Foto" class="profile-photo" />
+                <div id="popupUsername" class="retro-text"></div>
+                <div id="popupBio" class="retro-text"></div>
+                <button onclick="closePopup('profilePopup')">Fechar</button>
+            </div>
+        </div>
+    </div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.7.5/socket.io.min.js"></script>
+    <script src="/client.js"></script>
+</body>
+</html>
