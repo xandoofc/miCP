@@ -2,7 +2,7 @@ body {
     margin: 0;
     padding: 0;
     font-family: 'VT323', 'Courier New', monospace;
-    font-size: 14px;
+    font-size: 18px;
     height: 100vh;
     overflow: auto;
     transition: all 0.3s ease;
@@ -10,81 +10,83 @@ body {
 
 /* Theme: Vaporwave (default) */
 .theme-vaporwave {
-    background: linear-gradient(135deg, #ff00ff, #00ffff);
-    color: #ffffff;
+    background: #008080;
+    color: #000000;
 }
 .theme-vaporwave .retro-window {
-    background: rgba(0, 0, 0, 0.7);
-    border: 2px solid #ff00ff;
-    box-shadow: 0 0 10px #00ffff;
+    background: #c0c0c0;
+    border: 2px outset #ffffff;
+    box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.5);
 }
 .theme-vaporwave .retro-titlebar {
-    background: #ff00ff;
-    color: #00ffff;
+    background: #000080;
+    color: #ffffff;
+    padding: 5px;
 }
 .theme-vaporwave .retro-tab.active {
-    background: #00ffff;
-    color: #ff00ff;
+    background: #ffffff;
+    color: #000080;
 }
 
 /* Theme: Retro */
 .theme-retro {
-    background: #ff4500;
-    color: #ffff00;
+    background: #000000;
+    color: #00ff00;
 }
 .theme-retro .retro-window {
-    background: #000080;
-    border: 2px solid #ffff00;
+    background: #000000;
+    border: 2px solid #00ff00;
 }
 .theme-retro .retro-titlebar {
-    background: #ff4500;
-    color: #000080;
+    background: #000000;
+    color: #00ff00;
+    text-align: center;
 }
 .theme-retro .retro-tab.active {
-    background: #ffff00;
-    color: #ff4500;
+    background: #00ff00;
+    color: #000000;
 }
 
 /* Theme: Frutiger Aero */
 .theme-frutiger {
-    background: linear-gradient(to bottom, #87ceeb, #00b7eb);
-    color: #ffffff;
+    background: #4040c0;
+    color: #d0d0d0;
 }
 .theme-frutiger .retro-window {
-    background: rgba(255, 255, 255, 0.8);
-    border: 2px solid #00b7eb;
+    background: #4040c0;
+    border: 2px solid #d0d0d0;
 }
 .theme-frutiger .retro-titlebar {
-    background: #00b7eb;
-    color: #ffffff;
+    background: #d0d0d0;
+    color: #4040c0;
 }
 .theme-frutiger .retro-tab.active {
-    background: #87ceeb;
-    color: #00b7eb;
+    background: #d0d0d0;
+    color: #4040c0;
 }
 
 /* Theme: Windows 95 */
 .theme-win95 {
-    background: #008080;
+    background: #ff8040;
     color: #000000;
 }
 .theme-win95 .retro-window {
-    background: #c0c0c0;
-    border: 2px outset #ffffff;
+    background: #ffffff;
+    border: 2px solid #ff8040;
 }
 .theme-win95 .retro-titlebar {
-    background: #000080;
+    background: #ff8040;
     color: #ffffff;
 }
 .theme-win95 .retro-tab.active {
     background: #ffffff;
-    color: #000080;
+    color: #ff8040;
 }
 
 .retro-container {
     width: 100%;
     height: 100vh;
-    padding: 5px;
+    padding: 10px;
     box-sizing: border-box;
 }
 
@@ -93,13 +95,14 @@ body {
 }
 
 .retro-titlebar {
-    padding: 2px 5px;
+    padding: 8px 10px;
     font-weight: bold;
     text-shadow: 1px 1px #000000;
+    font-size: 20px;
 }
 
 .retro-content {
-    padding: 5px;
+    padding: 10px;
     display: flex;
 }
 
@@ -108,13 +111,19 @@ body {
 }
 
 input, button, textarea {
-    font-family: 'Pixel LCD7', monospace;
-    font-size: 12px;
-    padding: 3px;
+    font-family: 'VT323', 'Courier New', monospace;
+    font-size: 16px;
+    padding: 8px;
     border: 2px solid #ffffff;
     background: rgba(0, 0, 0, 0.5);
     color: #ffffff;
     transition: all 0.2s ease;
+}
+
+button {
+    padding: 10px 15px;
+    margin: 5px;
+    cursor: pointer;
 }
 
 button:hover {
@@ -127,19 +136,20 @@ button:active {
 }
 
 .user-list {
-    width: 200px;
+    width: 250px;
     order: 1;
     height: 90vh;
 }
 
 .retro-panel {
-    margin-bottom: 5px;
-    padding: 5px;
+    margin-bottom: 10px;
+    padding: 10px;
 }
 
 .retro-label {
-    padding: 2px;
-    margin-bottom: 3px;
+    padding: 5px;
+    margin-bottom: 5px;
+    font-size: 18px;
 }
 
 .retro-user-list {
@@ -150,11 +160,12 @@ button:active {
 }
 
 .retro-user-list li {
-    padding: 3px;
+    padding: 8px;
     display: flex;
     align-items: center;
     cursor: pointer;
     transition: all 0.2s ease;
+    font-size: 16px;
 }
 
 .retro-user-list li:hover {
@@ -162,9 +173,9 @@ button:active {
 }
 
 .retro-user-list li img.profile-pic {
-    width: 24px;
-    height: 24px;
-    margin-right: 5px;
+    width: 32px;
+    height: 32px;
+    margin-right: 10px;
     border: 2px solid #ffffff;
     border-radius: 0;
 }
@@ -184,71 +195,75 @@ button:active {
 
 .retro-tab {
     flex: 1;
-    padding: 3px;
+    padding: 8px;
     text-align: center;
     border: 2px solid #ffffff;
     transition: all 0.2s ease;
+    font-size: 18px;
 }
 
 .chat-box {
     flex: 1;
-    padding: 5px;
+    padding: 10px;
     overflow-y: auto;
     background: rgba(0, 0, 0, 0.8);
     border: 2px solid #ffffff;
+    font-size: 18px;
 }
 
 .message {
-    margin: 2px 0;
+    margin: 5px 0;
     display: flex;
     align-items: center;
+    padding: 5px;
 }
 
 .message img.profile-pic {
-    width: 24px;
-    height: 24px;
-    margin-right: 5px;
+    width: 32px;
+    height: 32px;
+    margin-right: 10px;
     border: 2px solid #ffffff;
     border-radius: 0;
     cursor: pointer;
 }
 
 .message img.media, .message video.media {
-    max-width: 150px; /* Smaller media */
+    max-width: 200px;
     margin-left: 10px;
+    border: 2px solid #ffffff;
 }
 
 .hentai-post {
-    margin: 5px 0;
-    padding: 5px;
-    background: rgba(255, 0, 255, 0.2);
-    border: 2px dashed #00ffff;
-    /* Remove animation */
+    margin: 10px 0;
+    padding: 10px;
+    background: rgba(0, 0, 0, 0.8);
+    border: 2px solid #ffffff;
 }
 
 .hentai-post img, .hentai-post video {
-    max-width: 150px;
-    border: 2px solid #ff00ff;
+    max-width: 200px;
+    border: 2px solid #ffffff;
 }
 
 .hentai-post .hentai-info {
-    color: #00ffff;
-    margin-top: 5px;
+    margin-top: 8px;
+    font-size: 16px;
 }
 
 .chat-input, .profile-edit {
-    padding: 5px;
+    padding: 10px;
     border-top: 2px solid #ffffff;
 }
 
 .media-preview img, .media-preview video {
-    max-width: 100px;
-    margin-top: 3px;
+    max-width: 150px;
+    margin-top: 5px;
 }
 
 .retro-status {
-    padding: 3px;
+    padding: 8px;
     border-top: 2px solid #ffffff;
+    font-size: 16px;
 }
 
 .ad-section {
@@ -265,12 +280,12 @@ button:active {
     left: 50%;
     transform: translate(-50%, -50%);
     z-index: 1000;
-    width: 300px;
+    width: 350px;
     /* Remove animation */
 }
 
 .profile-widget {
-    width: 250px;
+    width: 300px;
 }
 
 .hacker-message:hover {
@@ -291,7 +306,7 @@ button:active {
         width: 100%;
         order: 0;
         height: auto;
-        max-height: 20vh;
+        max-height: 30vh;
     }
     .main-content {
         order: 1;
@@ -301,8 +316,8 @@ button:active {
     }
     .retro-tab {
         flex: 1 1 50%;
-        padding: 2px;
-        font-size: 10px;
+        padding: 5px;
+        font-size: 16px;
     }
     .chat-box {
         height: 60vh;
@@ -314,9 +329,9 @@ button:active {
 
 /* Add styling for profile-photo class as well */
 .profile-photo {
-    width: 80px;
-    height: 80px;
+    width: 100px;
+    height: 100px;
     border: 2px solid #ffffff;
     border-radius: 0;
-    margin-bottom: 10px;
+    margin-bottom: 15px;
 }

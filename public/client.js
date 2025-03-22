@@ -165,11 +165,22 @@ export function initializeChat() {
         div.className = isHentai ? 'hentai-post' : 'message';
         div.dataset.id = data.id;
         let mediaContent = '';
+        
+        // Check for problematic image sources and replace them
         if (data.media) {
+            const filePath = data.media.filePath || '';
+            // Replace placeholder.com and problematic CDN images with a local fallback
+            if (filePath.includes('placeholder.com') || 
+                filePath.includes('storageimagedisplay.com') || 
+                !filePath.startsWith('http')) {
+                data.media.filePath = '/default-profile.png'; // Use a local image as fallback
+            }
+            
             mediaContent = data.media.type === 'video' ? 
                 `<video src="${data.media.filePath}" class="media" controls onerror="this.style.display='none'"></video>` : 
                 `<img src="${data.media.filePath}" class="media" alt="Media" onerror="this.src='/default-profile.png'; this.onerror=null;">`;
         }
+        
         div.innerHTML = isHentai ? `
             ${mediaContent}
             <div class="hentai-info">
@@ -180,7 +191,7 @@ export function initializeChat() {
             <img src="${data.photo}" class="profile-pic" alt="${data.user}" onerror="this.src='/default-profile.png';" onclick="showProfileWidget(userProfiles.get('${data.user}'))">
             <span style="color: ${data.color}" onclick="showProfileWidget(userProfiles.get('${data.user}'))">${data.user}</span>: ${data.text || ''}
             ${mediaContent}
-            <span style="color: #00ffff">[${new Date(data.timestamp).toLocaleTimeString()}]</span>
+            <span style="color: #ffffff">[${new Date(data.timestamp).toLocaleTimeString()}]</span>
         `;
         elements.chatBox.appendChild(div);
         elements.chatBox.scrollTop = elements.chatBox.scrollHeight;
