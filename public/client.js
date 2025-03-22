@@ -1,47 +1,34 @@
 export function initializeChat() {
-    const { db, storage, ref, set, onValue, off, push, update, runTransaction, storageRef, uploadBytes, getDownloadURL } = window.firebaseApp;
+    const { db, ref, set, onValue, off, push, update, runTransaction } = window.firebaseApp;
 
     const elements = {
         welcomeScreen: document.getElementById('welcomeScreen'),
         chatContainer: document.getElementById('chatContainer'),
         usernameInput: document.getElementById('usernameInput'),
-        profilePhotoInput: document.getElementById('profilePhotoInput'),
+        passwordInput: document.getElementById('passwordInput'),
         joinButton: document.getElementById('joinButton'),
         currentUser: document.getElementById('currentUser'),
         chatBox: document.getElementById('chatBox'),
         messageInput: document.getElementById('messageInput'),
-        mediaInput: document.getElementById('mediaInput'),
         userList: document.getElementById('userList'),
         errorMessage: document.getElementById('errorMessage'),
         logoutButton: document.getElementById('logoutButton'),
         forumTab: document.getElementById('forumTab'),
         privateTab: document.getElementById('privateTab'),
         profileTab: document.getElementById('profileTab'),
+        hentaiTab: document.getElementById('hentaiTab'),
         sendButton: document.getElementById('sendButton'),
-        mediaPreview: document.getElementById('mediaPreview'),
-        photoPreview: document.getElementById('photoPreview'),
-        statusBar: document.getElementById('statusBar'),
-        profilePopup: document.getElementById('profilePopup'),
-        popupPhoto: document.getElementById('popupPhoto'),
-        popupUsername: document.getElementById('popupUsername'),
-        popupBio: document.getElementById('popupBio'),
         chatInput: document.getElementById('chatInput'),
-        profileEdit: document.getElementById('profileEdit'),
-        editPhotoInput: document.getElementById('editPhotoInput'),
-        editPhotoPreview: document.getElementById('editPhotoPreview'),
-        editBioInput: document.getElementById('editBioInput'),
-        saveProfileButton: document.getElementById('saveProfileButton')
+        statusBar: document.getElementById('statusBar')
     };
 
     let username = localStorage.getItem('username') || '';
     let userId = localStorage.getItem('userId') || generateUserId();
     let currentChat = '#main';
     let userProfiles = new Map();
-    let messageCount = 0;
+    let messageIds = new Set(); // Track message IDs to prevent duplication
     let lastMessage = '';
     let lastMessageTime = 0;
-    let userColors = {};
-    let typingUsers = new Set();
 
     function generateUserId() {
         const id = 'user_' + Math.random().toString(36).substr(2, 9);
@@ -49,48 +36,37 @@ export function initializeChat() {
         return id;
     }
 
-    function generateColor() {
-        return `rgb(${Math.floor(Math.random() * 256)}, ${Math.floor(Math.random() * 256)}, ${Math.floor(Math.random() * 256)})`;
-    }
-
     if (username) loginUser(username, userId, localStorage.getItem('photo'), localStorage.getItem('bio'));
     else elements.welcomeScreen.style.display = 'block';
 
     elements.joinButton.addEventListener('click', () => {
         username = elements.usernameInput.value.trim();
+        const password = elements.passwordInput.value;
         if (username.length < 3) {
             elements.errorMessage.textContent = 'Nick mínimo 3 caracteres!';
             return;
         }
         elements.errorMessage.textContent = 'Conectando...';
-        const file = elements.profilePhotoInput.files[0];
-        if (file) uploadPhoto(file, (photoUrl) => loginUser(username, userId, photoUrl));
-        else loginUser(username, userId);
+        loginUser(username, userId, null, null, password === '681227' && username === 'admin');
     });
 
-    elements.profilePhotoInput.addEventListener('change', () => {
-        const file = elements.profilePhotoInput.files[0];
-        if (file) elements.photoPreview.innerHTML = `<img src="${URL.createObjectURL(file)}" alt="Prévia">`;
-    });
-
-    function loginUser(username, userId, photo = '/default-profile.png', bio = 'Sem bio ainda.') {
+    function loginUser(username, userId, photo = '/default-profile.png', bio = 'Sem bio ainda.', isAdmin = false) {
         const userData = {
             username, userId, online: true, photo, bio, joined: Date.now(),
-            color: generateColor(), messageCount: 0, lastSeen: Date.now()
+            color: generateColor(), messageCount: 0, lastSeen: Date.now(), admin: isAdmin
         };
         set(ref(db, 'users/' + userId), userData).then(() => {
             elements.welcomeScreen.style.display = 'none';
-            elements.chatContainer.style.display = 'flex';
+            elements.chatContainer.style.display = 'block';
             elements.currentUser.textContent = username;
             localStorage.setItem('username', username);
             localStorage.setItem('photo', photo);
             localStorage.setItem('bio', bio);
+            localStorage.setItem('isAdmin', isAdmin);
             updateStatusBar();
             switchTab('#main');
-            startTypingDetection();
         }).catch(err => {
             elements.errorMessage.textContent = 'Erro ao conectar: ' + err.message;
-            console.error(err);
         });
     }
 
@@ -100,28 +76,28 @@ export function initializeChat() {
         snapshot.forEach(child => {
             const user = child.val();
             userProfiles.set(user.username, user);
-            userColors[user.username] = user.color;
             const li = document.createElement('li');
-            li.innerHTML = `<img src="${user.photo}" class="profile-pic" alt="${user.username}" onerror="this.src='/default-profile.png'"> ${user.username} ${user.typing ? '[Digitando...]' : ''}`;
+            li.innerHTML = `<img src="${user.photo}" class="profile-pic" alt="${user.username}" onerror="this.src='/default-profile.png'"> ${user.username}`;
             li.style.color = user.color;
             li.onclick = () => switchTab(user.username);
-            li.ondblclick = () => showProfilePopup(user.username);
             elements.userList.appendChild(li);
         });
         updateStatusBar();
     });
 
     function loadMessages(target) {
-        const dbRef = target === '#main' ? ref(db, 'forumMessages') : ref(db, 'privateMessages/' + [username, target].sort().join('-'));
+        const dbRef = target === '#main' ? ref(db, 'forumMessages') : 
+                     target === '#hentai' ? ref(db, 'hentaiMessages') : 
+                     ref(db, 'privateMessages/' + [username, target].sort().join('-'));
         off(dbRef);
         onValue(dbRef, (snapshot) => {
-            if (!elements.chatBox.innerHTML.includes(`--- ${target === '#main' ? 'Fórum' : `Chat com ${target}`} ---`)) {
-                elements.chatBox.innerHTML = `<div>--- ${target === '#main' ? 'Fórum' : `Chat com ${target}`} ---</div>`;
-            }
+            elements.chatBox.innerHTML = `<div>--- ${target === '#main' ? 'Fórum' : target === '#hentai' ? 'Hentai (Somente Leitura)' : `Chat com ${target}`} ---</div>`;
+            messageIds.clear();
             snapshot.forEach(child => {
                 const data = child.val();
-                if ((currentChat === '#main' && target === '#main') ||
-                    (currentChat !== '#main' && (data.user === currentChat || data.user === username))) {
+                data.id = child.key;
+                if (!messageIds.has(data.id)) {
+                    messageIds.add(data.id);
                     displayMessage(data);
                 }
             });
@@ -130,13 +106,8 @@ export function initializeChat() {
 
     function sendMessage() {
         const text = elements.messageInput.value.trim();
-        const file = elements.mediaInput.files[0];
         const now = Date.now();
-
-        if ((!text && !file) || (text === lastMessage && now - lastMessageTime < 1000)) {
-            displayMessage({ text: 'Aguarde 1 segundo ou evite repetir mensagens!', system: true });
-            return;
-        }
+        if (!text || (text === lastMessage && now - lastMessageTime < 1000) || currentChat === '#hentai') return;
 
         const message = {
             user: username,
@@ -145,125 +116,42 @@ export function initializeChat() {
             color: userProfiles.get(username).color,
             photo: userProfiles.get(username).photo
         };
-
-        if (file) {
-            uploadMedia(file, (mediaData) => {
-                message.media = mediaData;
-                pushMessage(message, currentChat);
-                resetMediaInput();
-            });
-        } else {
-            pushMessage(message, currentChat);
-            elements.messageInput.value = '';
-        }
-
+        pushMessage(message, currentChat);
+        elements.messageInput.value = '';
         lastMessage = text;
         lastMessageTime = now;
-    }
-
-    async function uploadPhoto(file, callback) {
-        const compressedFile = await compressFile(file, 0.7, 100);
-        const fileRef = storageRef(storage, 'profiles/' + userId + '-' + Date.now() + '.jpg');
-        uploadBytes(fileRef, compressedFile).then((snapshot) => {
-            getDownloadURL(snapshot.ref).then(callback).catch(err => {
-                displayMessage({ text: 'Erro ao obter URL da foto: ' + err.message, system: true });
-            });
-        }).catch(err => {
-            displayMessage({ text: 'Erro ao enviar foto: ' + err.message, system: true });
-        });
-    }
-
-    async function uploadMedia(file, callback) {
-        const compressedFile = await compressFile(file, 0.8, 600);
-        const fileRef = storageRef(storage, 'uploads/' + Date.now() + '.media');
-        uploadBytes(fileRef, compressedFile).then((snapshot) => {
-            getDownloadURL(snapshot.ref).then((url) => {
-                callback({ filePath: url, type: file.type.startsWith('video') ? 'video' : 'image' });
-            }).catch(err => {
-                displayMessage({ text: 'Erro ao obter URL da mídia: ' + err.message, system: true });
-            });
-        }).catch(err => {
-            displayMessage({ text: 'Erro ao enviar mídia: ' + err.message, system: true });
-        });
     }
 
     function pushMessage(message, target) {
         const dbRef = target === '#main' ? ref(db, 'forumMessages') : ref(db, 'privateMessages/' + [username, target].sort().join('-'));
         push(dbRef, message).then(() => {
             runTransaction(ref(db, 'users/' + userId + '/messageCount'), (count) => (count || 0) + 1);
-            displayMessage(message);
-            notifyUser(message);
-        }).catch(err => {
-            displayMessage({ text: 'Erro ao enviar mensagem: ' + err.message, system: true });
         });
     }
 
     function displayMessage(data) {
-        if (localStorage.getItem(`ignore_${data.user}`)) return;
         const div = document.createElement('div');
         div.className = 'message';
-        if (data.system) {
-            div.textContent = data.text;
-            div.style.color = '#ff0000';
-        } else {
-            const mediaContent = data.media
-                ? data.media.type === 'video'
-                    ? `<div class="video-player" data-src="${data.media.filePath}"></div>`
-                    : `<img src="${data.media.filePath}" alt="Mídia" class="media" onerror="this.src='/default-profile.png'">`
-                : '';
-            div.innerHTML = `
-                <img src="${data.photo}" class="profile-pic" alt="${data.user}" onerror="this.src='/default-profile.png'">
-                <span style="color: ${data.color}" onclick="showProfilePopup('${data.user}')">${data.user}</span>: ${data.text}
-                ${mediaContent}
-                <span style="color: #00b7eb">[${new Date(data.timestamp).toLocaleTimeString()}]</span>
-            `;
-            if (data.media && data.media.type === 'video') initWebGLVideo(div.querySelector('.video-player'));
-        }
+        div.dataset.id = data.id;
+        const mediaContent = data.media ? `<video src="${data.media.filePath}" class="media" controls></video>` : '';
+        div.innerHTML = `
+            <img src="${data.photo}" class="profile-pic" alt="${data.user}" onerror="this.src='/default-profile.png'">
+            <span style="color: ${data.color}">${data.user}</span>: ${data.text || ''}
+            ${mediaContent}
+            <span style="color: #000080">[${new Date(data.timestamp).toLocaleTimeString()}]</span>
+        `;
         elements.chatBox.appendChild(div);
         elements.chatBox.scrollTop = elements.chatBox.scrollHeight;
     }
 
     function switchTab(target) {
         currentChat = target;
-        elements.chatBox.innerHTML = `<div>--- ${target === '#main' ? 'Fórum' : target === '#profile' ? 'Perfil' : `Chat com ${target}`} ---</div>`;
         elements.forumTab.classList.toggle('active', target === '#main');
-        elements.privateTab.classList.toggle('active', target !== '#main' && target !== '#profile');
+        elements.privateTab.classList.toggle('active', target !== '#main' && target !== '#profile' && target !== '#hentai');
         elements.profileTab.classList.toggle('active', target === '#profile');
-        elements.privateTab.textContent = target === '#main' || target === '#profile' ? 'Privado' : `Chat: ${target}`;
-        elements.chatInput.style.display = target === '#profile' ? 'none' : 'block';
-        elements.profileEdit.style.display = target === '#profile' ? 'block' : 'none';
-        if (target === '#profile') loadProfile();
-        else loadMessages(target);
-    }
-
-    function loadProfile() {
-        const user = userProfiles.get(username);
-        if (user) {
-            elements.editPhotoPreview.src = user.photo;
-            elements.editBioInput.value = user.bio;
-        }
-    }
-
-    elements.editPhotoInput.addEventListener('change', () => {
-        const file = elements.editPhotoInput.files[0];
-        if (file) elements.editPhotoPreview.src = URL.createObjectURL(file);
-    });
-
-    elements.saveProfileButton.addEventListener('click', () => {
-        const file = elements.editPhotoInput.files[0];
-        const bio = elements.editBioInput.value.trim();
-        if (file) uploadPhoto(file, (photoUrl) => updateProfile(photoUrl, bio));
-        else updateProfile(userProfiles.get(username).photo, bio);
-    });
-
-    function updateProfile(photo, bio) {
-        update(ref(db, 'users/' + userId), { photo, bio }).then(() => {
-            localStorage.setItem('photo', photo);
-            localStorage.setItem('bio', bio);
-            displayMessage({ text: 'Perfil atualizado com sucesso!', system: true });
-        }).catch(err => {
-            displayMessage({ text: 'Erro ao atualizar perfil: ' + err.message, system: true });
-        });
+        elements.hentaiTab.classList.toggle('active', target === '#hentai');
+        elements.chatInput.style.display = target === '#profile' || target === '#hentai' ? 'none' : 'block';
+        loadMessages(target);
     }
 
     function updateStatusBar() {
@@ -271,226 +159,10 @@ export function initializeChat() {
         elements.statusBar.textContent = `Nick: ${username} | Msgs: ${user?.messageCount || 0} | Online: ${userProfiles.size}`;
     }
 
-    function showProfilePopup(user) {
-        const profile = userProfiles.get(user);
-        if (profile) {
-            elements.popupPhoto.src = profile.photo;
-            elements.popupUsername.textContent = `Nick: ${profile.username}`;
-            elements.popupBio.textContent = `Bio: ${profile.bio}`;
-            elements.profilePopup.style.display = 'block';
-        }
-    }
-
-    window.closePopup = function(id) {
-        document.getElementById(id).style.display = 'none';
-    };
-
-    function resetMediaInput() {
-        elements.messageInput.value = '';
-        elements.mediaInput.value = '';
-        elements.mediaPreview.innerHTML = '';
-    }
-
-    async function compressFile(file, quality, maxSize) {
-        if (file.type.startsWith('video')) return file;
-        return new Promise((resolve) => {
-            const img = new Image();
-            img.src = URL.createObjectURL(file);
-            img.onload = () => {
-                const canvas = document.createElement('canvas');
-                const scale = Math.min(maxSize / img.width, maxSize / img.height, 1);
-                canvas.width = img.width * scale;
-                canvas.height = img.height * scale;
-                const ctx = canvas.getContext('2d');
-                ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-                canvas.toBlob((blob) => resolve(blob), 'image/jpeg', quality);
-            };
-        });
-    }
-
-    function initWebGLVideo(container) {
-        const video = document.createElement('video');
-        video.src = container.dataset.src;
-        video.muted = true; // Mute initially to avoid autoplay issues
-        const canvas = document.createElement('canvas');
-        canvas.width = 200;
-        canvas.height = 150;
-        const gl = canvas.getContext('webgl');
-        if (!gl) {
-            container.innerHTML = `<video src="${video.src}" controls></video>`;
-            return;
-        }
-
-        // WebGL Setup
-        const vertexShaderSource = `
-            attribute vec2 a_position;
-            attribute vec2 a_texCoord;
-            varying vec2 v_texCoord;
-            void main() {
-                gl_Position = vec4(a_position, 0, 1);
-                v_texCoord = a_texCoord;
-            }
-        `;
-        const fragmentShaderSource = `
-            precision mediump float;
-            varying vec2 v_texCoord;
-            uniform sampler2D u_texture;
-            void main() {
-                gl_FragColor = texture2D(u_texture, v_texCoord);
-            }
-        `;
-
-        const vertexShader = gl.createShader(gl.FRAGMENT_SHADER);
-        gl.shaderSource(vertexShader, fragmentShaderSource);
-        gl.compileShader(vertexShader);
-        const fragmentShader = gl.createShader(gl.VERTEX_SHADER);
-        gl.shaderSource(fragmentShader, vertexShaderSource);
-        gl.compileShader(fragmentShader);
-
-        const program = gl.createProgram();
-        gl.attachShader(program, vertexShader);
-        gl.attachShader(program, fragmentShader);
-        gl.linkProgram(program);
-        gl.useProgram(program);
-
-        const positionBuffer = gl.createBuffer();
-        gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
-        gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 1, -1, -1, 1, 1, 1]), gl.STATIC_DRAW);
-
-        const texCoordBuffer = gl.createBuffer();
-        gl.bindBuffer(gl.ARRAY_BUFFER, texCoordBuffer);
-        gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([0, 1, 1, 1, 0, 0, 1, 0]), gl.STATIC_DRAW);
-
-        const positionLocation = gl.getAttribLocation(program, 'a_position');
-        const texCoordLocation = gl.getAttribLocation(program, 'a_texCoord');
-        const textureLocation = gl.getUniformLocation(program, 'u_texture');
-
-        gl.enableVertexAttribArray(positionLocation);
-        gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
-        gl.vertexAttribPointer(positionLocation, 2, gl.FLOAT, false, 0, 0);
-
-        gl.enableVertexAttribArray(texCoordLocation);
-        gl.bindBuffer(gl.ARRAY_BUFFER, texCoordBuffer);
-        gl.vertexAttribPointer(texCoordLocation, 2, gl.FLOAT, false, 0, 0);
-
-        const texture = gl.createTexture();
-        gl.bindTexture(gl.TEXTURE_2D, texture);
-        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
-        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
-
-        // Video Player UI
-        const controls = document.createElement('div');
-        controls.className = 'video-controls';
-        controls.innerHTML = `
-            <button class="play-pause">▶</button>
-            <input type="range" class="seek" min="0" max="100" value="0">
-            <input type="range" class="volume" min="0" max="1" step="0.1" value="1">
-        `;
-        container.appendChild(canvas);
-        container.appendChild(controls);
-
-        const playPauseBtn = controls.querySelector('.play-pause');
-        const seekBar = controls.querySelector('.seek');
-        const volumeBar = controls.querySelector('.volume');
-
-        playPauseBtn.addEventListener('click', () => {
-            if (video.paused) {
-                video.play().catch(err => console.error('Play error:', err));
-                playPauseBtn.textContent = '⏸';
-            } else {
-                video.pause();
-                playPauseBtn.textContent = '▶';
-            }
-        });
-
-        video.addEventListener('loadedmetadata', () => {
-            seekBar.max = video.duration;
-        });
-
-        video.addEventListener('timeupdate', () => {
-            seekBar.value = video.currentTime;
-        });
-
-        seekBar.addEventListener('input', () => {
-            video.currentTime = seekBar.value;
-        });
-
-        volumeBar.addEventListener('input', () => {
-            video.volume = volumeBar.value;
-            video.muted = video.volume === 0;
-        });
-
-        function render() {
-            gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, video);
-            gl.clear(gl.COLOR_BUFFER_BIT);
-            gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
-            requestAnimationFrame(render);
-        }
-
-        video.addEventListener('canplay', () => {
-            render(); // Start rendering only when video is ready
-        });
-    }
-
-    function notifyUser(message) {
-        if (message.user !== username && document.hidden) {
-            new Notification(`Nova mensagem de ${message.user}`, { body: message.text });
-        }
-    }
-
-    function startTypingDetection() {
-        elements.messageInput.addEventListener('input', () => {
-            update(ref(db, 'users/' + userId), { typing: true });
-            clearTimeout(typingUsers[userId]);
-            typingUsers[userId] = setTimeout(() => update(ref(db, 'users/' + userId), { typing: false }), 2000);
-        });
-    }
-
-    window.commands = {
-        '/nick': (newNick) => update(ref(db, 'users/' + userId), { username: newNick }),
-        '/color': (color) => update(ref(db, 'users/' + userId), { color }),
-        '/kick': (target) => userProfiles.get(username).admin && update(ref(db, 'users/' + userProfiles.get(target).userId), { online: false }),
-        '/ban': (target) => userProfiles.get(username).admin && set(ref(db, 'bans/' + userProfiles.get(target).userId), { banned: true }),
-        '/topic': (topic) => set(ref(db, 'forumTopic'), { text: topic, setBy: username }),
-        '/whois': (user) => showProfilePopup(user),
-        '/clear': () => elements.chatBox.innerHTML = '',
-        '/pm': (user, msg) => sendPrivateMessage(user, msg),
-        '/me': (action) => pushMessage({ user: username, text: `* ${username} ${action}`, system: true }, currentChat),
-        '/join': (channel) => switchTab(channel),
-        '/ignore': (user) => localStorage.setItem(`ignore_${user}`, true),
-        '/unignore': (user) => localStorage.removeItem(`ignore_${user}`),
-        '/list': () => displayMessage({ text: `Usuários: ${Array.from(userProfiles.keys()).join(', ')}`, system: true }),
-        '/stats': () => displayMessage({ text: `Mensagens: ${messageCount}, Online: ${userProfiles.size}`, system: true }),
-        '/away': (msg) => update(ref(db, 'users/' + userId), { away: msg || 'Ausente' }),
-        '/back': () => update(ref(db, 'users/' + userId), { away: null }),
-        '/quote': (text) => pushMessage({ user: username, text: `> ${text}`, system: true }, currentChat),
-        '/roll': () => pushMessage({ user: username, text: `Rolou: ${Math.floor(Math.random() * 6) + 1}`, system: true }, currentChat),
-        '/time': () => displayMessage({ text: `Hora: ${new Date().toLocaleTimeString()}`, system: true }),
-        '/mode': (mode) => displayMessage({ text: `Modo ${mode} não implementado`, system: true }),
-        '/op': (user) => userProfiles.get(username).admin && update(ref(db, 'users/' + userProfiles.get(user).userId), { admin: true }),
-        '/deop': (user) => userProfiles.get(username).admin && update(ref(db, 'users/' + userProfiles.get(user).userId), { admin: false }),
-        '/mute': (user) => userProfiles.get(username).admin && update(ref(db, 'users/' + userProfiles.get(user).userId), { muted: true }),
-        '/unmute': (user) => userProfiles.get(username).admin && update(ref(db, 'users/' + userProfiles.get(user).userId), { muted: false }),
-        '/invite': (user) => displayMessage({ text: `${user} foi convidado (simulação)`, system: true })
-    };
-
-    elements.messageInput.addEventListener('keypress', (e) => {
-        if (e.key === 'Enter') {
-            const text = elements.messageInput.value.trim();
-            if (text.startsWith('/')) {
-                const [cmd, ...args] = text.split(' ');
-                if (window.commands[cmd]) window.commands[cmd](...args);
-                else displayMessage({ text: 'Comando inválido!', system: true });
-                elements.messageInput.value = '';
-            } else sendMessage();
-        }
-    });
-
-    function sendPrivateMessage(user, msg) {
-        pushMessage({ user: username, text: msg, timestamp: Date.now(), color: userProfiles.get(username).color, photo: userProfiles.get(username).photo }, user);
-    }
-
     window.sendMessage = sendMessage;
     window.switchTab = switchTab;
-    window.showProfilePopup = showProfilePopup;
+    window.toggleAdminLogin = () => {
+        elements.passwordInput.style.display = elements.passwordInput.style.display === 'none' ? 'block' : 'none';
+    };
+    window.generateColor = () => `rgb(${Math.floor(Math.random() * 256)}, ${Math.floor(Math.random() * 256)}, ${Math.floor(Math.random() * 256)})`;
 }

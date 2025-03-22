@@ -1,53 +1,49 @@
 body {
     margin: 0;
     padding: 0;
-    background: #000080;
+    background: #008080;
     font-family: 'MS Sans Serif', sans-serif;
-    color: #00ff00;
+    color: #000000;
     font-size: 12px;
     height: 100vh;
-    overflow: hidden;
+    overflow: auto;
 }
 
-.mirc-container {
+.win95-container {
     width: 100%;
     height: 100vh;
-    display: flex;
-    flex-direction: column;
+    padding: 5px;
+    box-sizing: border-box;
 }
 
-.mirc-window {
-    background: #000000;
-    border: 1px solid #c0c0c0;
-    flex: 1;
-    display: flex;
-    flex-direction: column;
+.win95-window {
+    background: #c0c0c0;
+    border: 2px outset #ffffff;
+    box-shadow: inset 1px 1px #808080;
 }
 
-.mirc-titlebar {
+.win95-titlebar {
     background: #000080;
     color: #ffffff;
     padding: 2px 5px;
     font-weight: bold;
 }
 
-.mirc-content {
-    flex: 1;
-    display: flex;
+.win95-content {
     padding: 5px;
 }
 
-.mirc-text {
-    color: #00ff00;
+.win95-text {
+    color: #000000;
 }
 
 input, button, textarea {
     font-family: 'MS Sans Serif', sans-serif;
     font-size: 12px;
     padding: 3px;
-    border: 1px solid #c0c0c0;
-    background: #000000;
-    color: #00ff00;
+    border: 1px inset #808080;
+    background: #ffffff;
+    color: #000000;
 }
 
 button {
@@ -66,65 +62,64 @@ button:active {
 
 .sidebar {
     width: 250px;
-    display: flex;
-    flex-direction: column;
+    float: left;
+    height: 90vh;
 }
 
-.mirc-panel {
+.win95-panel {
     margin-bottom: 5px;
     padding: 5px;
-    background: #000000;
-    border: 1px solid #c0c0c0;
-    flex: 1;
+    background: #c0c0c0;
+    border: 1px inset #808080;
 }
 
-.mirc-label {
+.win95-label {
     background: #000080;
     color: #ffffff;
     padding: 2px;
     margin-bottom: 3px;
 }
 
-.mirc-list {
+.win95-list {
     list-style: none;
     padding: 0;
     max-height: 70vh;
     overflow-y: auto;
 }
 
-.mirc-list li {
+.win95-list li {
     padding: 3px;
     display: flex;
     align-items: center;
     cursor: pointer;
 }
 
-.mirc-list li:hover {
-    background: #00ff00;
-    color: #000000;
+.win95-list li:hover {
+    background: #000080;
+    color: #ffffff;
 }
 
-.mirc-list li img.profile-pic {
-    width: 16px;
-    height: 16px;
+.win95-list li img.profile-pic {
+    width: 24px; /* Slightly larger */
+    height: 24px;
     margin-right: 5px;
-    border: 1px solid #00b7eb;
+    border: 1px solid #000080;
 }
 
 .main-content {
-    flex: 1;
+    margin-left: 260px;
+    height: 90vh;
     display: flex;
     flex-direction: column;
-    margin-left: 5px;
 }
 
-.mirc-tabs {
+.win95-tabs {
     display: flex;
-    background: #000000;
-    border-bottom: 1px solid #c0c0c0;
+    background: #c0c0c0;
+    border-bottom: 1px inset #808080;
 }
 
-.mirc-tab {
+.win95-tab {
     flex: 1;
     padding: 3px;
     text-align: center;
@@ -132,18 +127,17 @@ button:active {
     border: 1px outset #ffffff;
 }
 
-.mirc-tab.active {
-    background: #000000;
-    color: #00ff00;
-    border: 1px inset #c0c0c0;
+.win95-tab.active {
+    background: #ffffff;
+    border: 1px inset #808080;
 }
 
 .chat-box {
     flex: 1;
     padding: 5px;
     overflow-y: auto;
-    background: #000000;
-    border: 1px solid #c0c0c0;
+    background: #ffffff;
+    border: 1px inset #808080;
 }
 
 .message {
@@ -153,26 +147,26 @@ button:active {
 }
 
 .message img.profile-pic {
-    width: 16px;
-    height: 16px;
+    width: 24px; /* Slightly larger */
+    height: 24px;
     margin-right: 5px;
-    border: 1px solid #00b7eb;
+    border: 1px solid #000080;
 }
 
 .message img.media {
-    max-width: 150px;
+    max-width: 200px;
     margin-left: 10px;
 }
 
 .video-player {
     position: relative;
-    width: 200px;
-    height: 150px;
+    width: 250px;
+    height: 180px;
     background: #000000;
-    border: 1px solid #c0c0c0;
+    border: 1px inset #808080;
 }
 
-.video-player canvas {
+.video-player video {
     width: 100%;
     height: 100%;
 }
@@ -181,7 +175,7 @@ button:active {
     position: absolute;
     bottom: 0;
     width: 100%;
-    background: rgba(0, 0, 128, 0.8);
+    background: #c0c0c0;
     padding: 5px;
     display: flex;
     align-items: center;
@@ -200,20 +194,20 @@ button:active {
 
 .chat-input, .profile-edit {
     padding: 5px;
-    background: #000000;
-    border-top: 1px solid #c0c0c0;
+    background: #c0c0c0;
+    border-top: 1px inset #808080;
 }
 
 .media-preview img, .media-preview video {
-    max-width: 80px;
+    max-width: 100px;
     margin-top: 3px;
 }
 
-.mirc-status {
+.win95-status {
     padding: 3px;
     background: #000080;
     color: #ffffff;
-    border-top: 1px solid #c0c0c0;
+    border-top: 1px inset #808080;
 }
 
 .ad-section {
@@ -230,41 +224,32 @@ button:active {
     left: 50%;
     transform: translate(-50%, -50%);
     z-index: 1000;
-    width: 250px;
+    width: 300px;
 }
 
 .profile-photo {
-    max-width: 60px;
-    border: 1px solid #00b7eb;
+    max-width: 80px;
+    border: 1px solid #000080;
     margin: 5px 0;
 }
 
 @media (max-width: 768px) {
-    .mirc-content {
-        flex-direction: column;
-    }
     .sidebar {
         width: 100%;
+        float: none;
         height: auto;
-        flex: none;
     }
     .main-content {
         margin-left: 0;
-        flex: 1;
     }
-    .mirc-tabs {
+    .win95-tabs {
         flex-direction: row;
     }
-    .mirc-tab {
+    .win95-tab {
         padding: 2px;
         font-size: 10px;
     }
     .chat-box {
-        height: auto;
-        flex: 1;
-    }
-    .video-player {
-        width: 100%;
-        height: 120px;
+        height: 50vh;
     }
 }
