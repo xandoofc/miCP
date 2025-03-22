@@ -1,176 +1,186 @@
 body {
     margin: 0;
-    padding: 1vw;
-    background: #1a1a1a; /* Fundo escuro */
-    font-family: 'Courier New', monospace;
-    color: #00ff00; /* Verde retrô */
-    font-size: 1rem;
+    padding: 10px;
+    background: #1a1a1a;
+    font-family: 'MS Sans Serif', sans-serif;
+    color: #c0c0c0;
+    font-size: 14px;
 }
 
-.retro-border {
+.win95-container {
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.win95-window {
     background: #2e2e2e;
-    border: 2px solid #00b7eb; /* Azul vibrante */
+    border: 2px solid #808080;
     box-shadow: inset 1px 1px #000, inset -1px -1px #808080;
+    border-top: 2px solid #d4d0c8;
+    border-left: 2px solid #d4d0c8;
 }
 
-.window-title {
+.win95-titlebar {
     background: linear-gradient(to right, #000080, #1084d0);
     color: #fff;
-    padding: 0.3rem 0.5rem;
-    text-align: left;
-    font-weight: bold;
-    border-bottom: 1px solid #000;
+    padding: 3px 5px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
 }
 
-.retro-text {
-    font-family: 'Courier New', monospace;
-    color: #00ff00;
-    text-shadow: none;
+.win95-close {
+    background: #c0c0c0;
+    border: 1px solid #000;
+    width: 20px;
+    height: 20px;
+    font-size: 12px;
+    cursor: pointer;
 }
 
-.welcome-screen, .container, .popup {
-    max-width: 95vw;
-    margin: 1vh auto;
-    position: relative;
+.win95-content {
+    padding: 10px;
 }
 
-.window-content, .chat-body {
-    padding: 1rem;
+.win95-text {
+    color: #c0c0c0;
 }
 
 input, button, textarea {
-    font-family: 'Courier New', monospace;
-    font-size: 1rem;
-    padding: 0.3rem;
-    border: 2px solid #00b7eb;
+    font-family: 'MS Sans Serif', sans-serif;
+    font-size: 14px;
+    padding: 5px;
+    border: 1px solid #808080;
     background: #2e2e2e;
-    color: #00ff00;
+    color: #c0c0c0;
 }
 
 button {
-    background: #00b7eb;
-    border: 2px solid #00ff00;
+    background: #c0c0c0;
+    border: 1px outset #fff;
     cursor: pointer;
 }
 
 button:hover {
-    background: #ff00ff;
+    background: #d4d0c8;
 }
 
 button:active {
-    border: 2px inset #fff;
+    border: 1px inset #808080;
 }
 
-.chat-body {
-    display: flex;
+.sidebar {
+    width: 300px;
+    float: left;
+    height: 80vh;
+}
+
+.win95-panel {
+    margin-bottom: 10px;
+    padding: 5px;
     background: #2e2e2e;
-    border-top: 1px solid #00b7eb;
-    min-height: 85vh;
+    border: 1px solid #808080;
 }
 
-.contacts {
-    width: 30%;
-    padding: 1rem;
-    border-right: 1px solid #00b7eb;
+.win95-label {
+    background: #000080;
+    color: #fff;
+    padding: 2px 5px;
+    margin-bottom: 5px;
+}
+
+.win95-list {
+    list-style: none;
+    padding: 0;
+    max-height: 60vh;
     overflow-y: auto;
 }
 
-.retro-list {
-    list-style: none;
-    padding: 0;
-}
-
-.retro-list li {
-    padding: 0.5rem;
+.win95-list li {
+    padding: 5px;
+    display: flex;
+    align-items: center;
     cursor: pointer;
 }
 
-.retro-list li:hover {
+.win95-list li:hover {
     background: #ff00ff;
     color: #fff;
 }
 
-.chat-area {
-    width: 70%;
+.win95-list li img.profile-pic {
+    width: 20px; /* Reduced size */
+    height: 20px;
+    margin-right: 5px;
+    border: 1px solid #00b7eb;
+}
+
+.main-content {
+    margin-left: 320px;
+    height: 80vh;
     display: flex;
     flex-direction: column;
 }
 
-.tabs {
+.win95-tabs {
     display: flex;
     background: #2e2e2e;
-    border-bottom: 1px solid #00b7eb;
+    border-bottom: 1px solid #808080;
 }
 
-.tab {
+.win95-tab {
     flex: 1;
-    padding: 0.5rem;
+    padding: 5px;
     text-align: center;
-    border-right: 1px solid #00b7eb;
+    background: #c0c0c0;
+    border: 1px outset #fff;
 }
 
-.tab.active {
-    background: #ff00ff;
-    border-bottom: none;
+.win95-tab.active {
+    background: #d4d0c8;
+    border: 1px inset #808080;
 }
 
 .chat-box {
     flex: 1;
-    padding: 1rem;
+    padding: 10px;
     overflow-y: auto;
     background: #1a1a1a;
-    border: 2px solid #00b7eb;
+    border: 1px solid #808080;
 }
 
 .message {
-    margin: 0.5rem 0;
+    margin: 5px 0;
     display: flex;
     align-items: center;
 }
 
-.message img.profile-pic {
-    width: 30px;
-    height: 30px;
-    margin-right: 0.5rem;
-    border: 1px solid #00b7eb;
-}
-
-.message img.media, .message .video-player video {
-    max-width: 25vw;
-    margin-left: 1rem;
-    border: 1px solid #00b7eb;
+.message img.media {
+    max-width: 200px;
+    margin-left: 10px;
 }
 
 .video-player {
     background: #2e2e2e;
-    padding: 0.5rem;
-    border: 2px solid #00b7eb;
-}
-
-.video-player video {
-    max-width: 25vw;
+    padding: 5px;
+    border: 1px solid #808080;
 }
 
 .chat-input, .profile-edit {
-    padding: 1rem;
+    padding: 10px;
     background: #2e2e2e;
-    border-top: 1px solid #00b7eb;
-}
-
-.chat-input input[type="text"] {
-    flex: 1;
+    border-top: 1px solid #808080;
 }
 
 .media-preview img, .media-preview video {
     max-width: 100px;
-    margin-top: 0.5rem;
-    border: 1px solid #00b7eb;
+    margin-top: 5px;
 }
 
-.status-bar {
-    padding: 0.5rem;
+.win95-status {
+    padding: 5px;
     background: #2e2e2e;
-    border-top: 1px solid #00b7eb;
+    border-top: 1px solid #808080;
 }
 
 .popup {
@@ -179,41 +189,28 @@ button:active {
     left: 50%;
     transform: translate(-50%, -50%);
     z-index: 1000;
+    width: 300px;
 }
 
 .profile-photo {
-    max-width: 100px;
+    max-width: 80px;
     border: 1px solid #00b7eb;
-    margin: 1rem 0;
+    margin: 10px 0;
 }
 
-.profile-edit textarea {
-    width: 100%;
-    height: 80px;
-    resize: none;
-}
-
-/* Mobile */
 @media (max-width: 768px) {
-    .chat-body {
-        flex-direction: column;
-    }
-    .contacts, .chat-area {
+    .sidebar {
         width: 100%;
+        float: none;
+        height: auto;
     }
-    .contacts {
-        border-right: none;
-        border-bottom: 1px solid #00b7eb;
-        max-height: 25vh;
+    .main-content {
+        margin-left: 0;
     }
-    .chat-input {
+    .win95-tabs {
         flex-direction: column;
     }
-    input, button {
-        font-size: 1.2rem;
-        padding: 0.5rem;
-    }
-    .message img.media, .message .video-player video {
-        max-width: 60vw;
+    .win95-tab {
+        width: 100%;
     }
 }

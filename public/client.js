@@ -1,35 +1,37 @@
 export function initializeChat() {
     const { db, storage, ref, set, onValue, off, push, update, runTransaction, storageRef, uploadBytes, getDownloadURL } = window.firebaseApp;
 
-    const welcomeScreen = document.getElementById('welcomeScreen');
-    const chatContainer = document.getElementById('chatContainer');
-    const usernameInput = document.getElementById('usernameInput');
-    const profilePhotoInput = document.getElementById('profilePhotoInput');
-    const joinButton = document.getElementById('joinButton');
-    const currentUser = document.getElementById('currentUser');
-    const chatBox = document.getElementById('chatBox');
-    const messageInput = document.getElementById('messageInput');
-    const mediaInput = document.getElementById('mediaInput');
-    const userList = document.getElementById('userList');
-    const errorMessage = document.getElementById('errorMessage');
-    const logoutButton = document.getElementById('logoutButton');
-    const forumTab = document.getElementById('forumTab');
-    const privateTab = document.getElementById('privateTab');
-    const profileTab = document.getElementById('profileTab');
-    const sendButton = document.getElementById('sendButton');
-    const mediaPreview = document.getElementById('mediaPreview');
-    const photoPreview = document.getElementById('photoPreview');
-    const statusBar = document.getElementById('statusBar');
-    const profilePopup = document.getElementById('profilePopup');
-    const popupPhoto = document.getElementById('popupPhoto');
-    const popupUsername = document.getElementById('popupUsername');
-    const popupBio = document.getElementById('popupBio');
-    const chatInput = document.getElementById('chatInput');
-    const profileEdit = document.getElementById('profileEdit');
-    const editPhotoInput = document.getElementById('editPhotoInput');
-    const editPhotoPreview = document.getElementById('editPhotoPreview');
-    const editBioInput = document.getElementById('editBioInput');
-    const saveProfileButton = document.getElementById('saveProfileButton');
+    const elements = {
+        welcomeScreen: document.getElementById('welcomeScreen'),
+        chatContainer: document.getElementById('chatContainer'),
+        usernameInput: document.getElementById('usernameInput'),
+        profilePhotoInput: document.getElementById('profilePhotoInput'),
+        joinButton: document.getElementById('joinButton'),
+        currentUser: document.getElementById('currentUser'),
+        chatBox: document.getElementById('chatBox'),
+        messageInput: document.getElementById('messageInput'),
+        mediaInput: document.getElementById('mediaInput'),
+        userList: document.getElementById('userList'),
+        errorMessage: document.getElementById('errorMessage'),
+        logoutButton: document.getElementById('logoutButton'),
+        forumTab: document.getElementById('forumTab'),
+        privateTab: document.getElementById('privateTab'),
+        profileTab: document.getElementById('profileTab'),
+        sendButton: document.getElementById('sendButton'),
+        mediaPreview: document.getElementById('mediaPreview'),
+        photoPreview: document.getElementById('photoPreview'),
+        statusBar: document.getElementById('statusBar'),
+        profilePopup: document.getElementById('profilePopup'),
+        popupPhoto: document.getElementById('popupPhoto'),
+        popupUsername: document.getElementById('popupUsername'),
+        popupBio: document.getElementById('popupBio'),
+        chatInput: document.getElementById('chatInput'),
+        profileEdit: document.getElementById('profileEdit'),
+        editPhotoInput: document.getElementById('editPhotoInput'),
+        editPhotoPreview: document.getElementById('editPhotoPreview'),
+        editBioInput: document.getElementById('editBioInput'),
+        saveProfileButton: document.getElementById('saveProfileButton')
+    };
 
     let username = localStorage.getItem('username') || '';
     let userId = localStorage.getItem('userId') || generateUserId();
@@ -38,6 +40,12 @@ export function initializeChat() {
     let messageCount = 0;
     let lastMessage = '';
     let lastMessageTime = 0;
+
+    // mIRC-like Features State
+    let userColors = {};
+    let chatThemes = ['dark', 'light'];
+    let currentTheme = 'dark';
+    let typingUsers = new Set();
 
     function generateUserId() {
         const id = 'user_' + Math.random().toString(36).substr(2, 9);
@@ -49,71 +57,64 @@ export function initializeChat() {
         return `rgb(${Math.floor(Math.random() * 256)}, ${Math.floor(Math.random() * 256)}, ${Math.floor(Math.random() * 256)})`;
     }
 
-    if (username) {
-        loginUser(username, userId, localStorage.getItem('photo'), localStorage.getItem('bio'));
-    } else {
-        welcomeScreen.style.display = 'block';
-    }
+    if (username) loginUser(username, userId, localStorage.getItem('photo'), localStorage.getItem('bio'));
+    else elements.welcomeScreen.style.display = 'block';
 
-    joinButton.addEventListener('click', () => {
-        username = usernameInput.value.trim();
+    elements.joinButton.addEventListener('click', () => {
+        username = elements.usernameInput.value.trim();
         if (username.length < 3) {
-            errorMessage.textContent = 'Nick mínimo 3 caracteres!';
+            elements.errorMessage.textContent = 'Nick mínimo 3 caracteres!';
             return;
         }
-        errorMessage.textContent = 'Conectando...';
-        const file = profilePhotoInput.files[0];
-        if (file) {
-            uploadPhoto(file, (photoUrl) => {
-                loginUser(username, userId, photoUrl);
-            });
-        } else {
-            loginUser(username, userId);
-        }
+        elements.errorMessage.textContent = 'Conectando...';
+        const file = elements.profilePhotoInput.files[0];
+        if (file) uploadPhoto(file, (photoUrl) => loginUser(username, userId, photoUrl));
+        else loginUser(username, userId);
     });
 
-    profilePhotoInput.addEventListener('change', () => {
-        const file = profilePhotoInput.files[0];
+    elements.profilePhotoInput.addEventListener('change', () => {
+        const file = elements.profilePhotoInput.files[0];
         if (file) {
-            photoPreview.innerHTML = `<img src="${URL.createObjectURL(file)}" alt="Prévia">`;
+            elements.photoPreview.innerHTML = `<img src="${URL.createObjectURL(file)}" alt="Prévia">`;
             triggerAdsterraPopunder();
         }
     });
 
     function loginUser(username, userId, photo = '/default-profile.png', bio = 'Sem bio ainda.') {
         const userData = {
-            username, userId, online: true,
-            photo, bio, joined: Date.now(),
-            color: generateColor(), messageCount: 0
+            username, userId, online: true, photo, bio, joined: Date.now(),
+            color: generateColor(), messageCount: 0, lastSeen: Date.now()
         };
         set(ref(db, 'users/' + userId), userData).then(() => {
-            welcomeScreen.style.display = 'none';
-            chatContainer.style.display = 'block';
-            currentUser.textContent = username;
+            elements.welcomeScreen.style.display = 'none';
+            elements.chatContainer.style.display = 'block';
+            elements.currentUser.textContent = username;
             localStorage.setItem('username', username);
             localStorage.setItem('photo', photo);
             localStorage.setItem('bio', bio);
             updateStatusBar();
             switchTab('#main');
             triggerAdsterraInterstitial();
+            startTypingDetection();
         }).catch(err => {
-            errorMessage.textContent = 'Erro ao conectar: ' + err.message;
+            elements.errorMessage.textContent = 'Erro ao conectar: ' + err.message;
             console.error(err);
         });
     }
 
     onValue(ref(db, 'users'), (snapshot) => {
-        userList.innerHTML = '';
+        elements.userList.innerHTML = '';
         userProfiles.clear();
         snapshot.forEach(child => {
             const user = child.val();
             userProfiles.set(user.username, user);
+            userColors[user.username] = user.color;
             const li = document.createElement('li');
-            li.innerHTML = `<img src="${user.photo}" class="profile-pic" alt="${user.username}" onerror="this.src='/default-profile.png'"> ${user.username}`;
+            li.innerHTML = `<img src="${user.photo}" class="profile-pic" alt="${user.username}" onerror="this.src='/default-profile.png'"> ${user.username} ${user.typing ? '[Typing...]' : ''}`;
             li.style.color = user.color;
             li.onclick = () => switchTab(user.username);
             li.ondblclick = () => showProfilePopup(user.username);
-            userList.appendChild(li);
+            elements.userList.appendChild(li);
         });
         updateStatusBar();
     });
@@ -122,35 +123,26 @@ export function initializeChat() {
         const dbRef = target === '#main' ? ref(db, 'forumMessages') : ref(db, 'privateMessages/' + [username, target].sort().join('-'));
         off(dbRef);
         onValue(dbRef, (snapshot) => {
-            if (!chatBox.innerHTML.includes(`--- ${target === '#main' ? 'Fórum' : `Chat com ${target}`} ---`)) {
-                chatBox.innerHTML = `<div>--- ${target === '#main' ? 'Fórum' : `Chat com ${target}`} ---</div>`;
+            if (!elements.chatBox.innerHTML.includes(`--- ${target === '#main' ? 'Fórum' : `Chat com ${target}`} ---`)) {
+                elements.chatBox.innerHTML = `<div>--- ${target === '#main' ? 'Fórum' : `Chat com ${target}`} ---</div>`;
             }
             snapshot.forEach(child => {
                 const data = child.val();
                 if ((currentChat === '#main' && target === '#main') ||
                     (currentChat !== '#main' && (data.user === currentChat || data.user === username))) {
-                    setTimeout(() => {
-                        displayMessage(data);
-                        messageCount++;
-                        if (messageCount % 5 === 0) triggerAdsterraInterstitial();
-                    }, 500);
+                    displayMessage(data);
                 }
             });
         }, { onlyOnce: false });
     }
 
     function sendMessage() {
-        const text = messageInput.value.trim();
-        const file = mediaInput.files[0];
+        const text = elements.messageInput.value.trim();
+        const file = elements.mediaInput.files[0];
         const now = Date.now();
 
         if ((!text && !file) || (text === lastMessage && now - lastMessageTime < 1000)) {
             displayMessage({ text: 'Aguarde 1 segundo ou evite repetir mensagens!', system: true });
-            return;
-        }
-
-        if (now - lastMessageTime < 1000) {
-            setTimeout(sendMessage, 1000 - (now - lastMessageTime));
             return;
         }
 
@@ -167,58 +159,50 @@ export function initializeChat() {
                 message.media = mediaData;
                 pushMessage(message, currentChat);
                 resetMediaInput();
-                triggerAdsterraPopunder();
             });
         } else {
             pushMessage(message, currentChat);
-            messageInput.value = '';
-            triggerAdsterraInterstitial();
+            elements.messageInput.value = '';
         }
 
         lastMessage = text;
         lastMessageTime = now;
     }
 
-    function uploadPhoto(file, callback) {
-        const fileRef = storageRef(storage, 'profiles/' + userId + '-' + file.name);
-        uploadBytes(fileRef, file).then((snapshot) => {
-            getDownloadURL(snapshot.ref).then((url) => {
-                callback(url);
-            }).catch(err => {
+    async function uploadPhoto(file, callback) {
+        const compressedFile = await compressFile(file, 0.7, 200); // Compress to 70% quality, max 200px
+        const fileRef = storageRef(storage, 'profiles/' + userId + '-' + Date.now() + '.jpg');
+        uploadBytes(fileRef, compressedFile).then((snapshot) => {
+            getDownloadURL(snapshot.ref).then(callback).catch(err => {
                 displayMessage({ text: 'Erro ao obter URL da foto: ' + err.message, system: true });
-                console.error(err);
             });
         }).catch(err => {
             displayMessage({ text: 'Erro ao enviar foto: ' + err.message, system: true });
-            console.error(err);
         });
     }
 
-    function uploadMedia(file, callback) {
-        const fileRef = storageRef(storage, 'uploads/' + Date.now() + '-' + file.name);
-        uploadBytes(fileRef, file).then((snapshot) => {
+    async function uploadMedia(file, callback) {
+        const compressedFile = await compressFile(file, 0.8, 800); // Higher quality for media, max 800px
+        const fileRef = storageRef(storage, 'uploads/' + Date.now() + '.media');
+        uploadBytes(fileRef, compressedFile).then((snapshot) => {
             getDownloadURL(snapshot.ref).then((url) => {
                 callback({ filePath: url, type: file.type.startsWith('video') ? 'video' : 'image' });
             }).catch(err => {
                 displayMessage({ text: 'Erro ao obter URL da mídia: ' + err.message, system: true });
-                console.error(err);
             });
         }).catch(err => {
             displayMessage({ text: 'Erro ao enviar mídia: ' + err.message, system: true });
-            console.error(err);
         });
     }
 
     function pushMessage(message, target) {
         const dbRef = target === '#main' ? ref(db, 'forumMessages') : ref(db, 'privateMessages/' + [username, target].sort().join('-'));
         push(dbRef, message).then(() => {
-            runTransaction(ref(db, 'users/' + userId + '/messageCount'), (count) => {
-                return (count || 0) + 1;
-            });
+            runTransaction(ref(db, 'users/' + userId + '/messageCount'), (count) => (count || 0) + 1);
             displayMessage(message);
+            notifyUser(message);
         }).catch(err => {
             displayMessage({ text: 'Erro ao enviar mensagem: ' + err.message, system: true });
-            console.error(err);
         });
     }
 
@@ -231,7 +215,7 @@ export function initializeChat() {
         } else {
             const mediaContent = data.media
                 ? data.media.type === 'video'
-                    ? `<div class="video-player"><video controls src="${data.media.filePath}" onerror="this.src='/default-profile.png'"></video></div>`
+                    ? `<div class="video-player" data-src="${data.media.filePath}"></div>`
                     : `<img src="${data.media.filePath}" alt="Mídia" class="media" onerror="this.src='/default-profile.png'">`
                 : '';
             div.innerHTML = `
@@ -240,57 +224,45 @@ export function initializeChat() {
                 ${mediaContent}
                 <span style="color: #00b7eb">[${new Date(data.timestamp).toLocaleTimeString()}]</span>
             `;
+            if (data.media && data.media.type === 'video') initWebGLVideo(div.querySelector('.video-player'));
         }
-        chatBox.appendChild(div);
-        chatBox.scrollTop = chatBox.scrollHeight;
-        triggerAdsterraPopunder();
+        elements.chatBox.appendChild(div);
+        elements.chatBox.scrollTop = elements.chatBox.scrollHeight;
     }
 
     function switchTab(target) {
         currentChat = target;
-        chatBox.innerHTML = `<div>--- ${target === '#main' ? 'Fórum' : target === '#profile' ? 'Perfil' : `Chat com ${target}`} ---</div>`;
-        forumTab.classList.toggle('active', target === '#main');
-        privateTab.classList.toggle('active', target !== '#main' && target !== '#profile');
-        profileTab.classList.toggle('active', target === '#profile');
-        privateTab.textContent = target === '#main' || target === '#profile' ? 'Privado' : `Chat: ${target}`;
-        
-        chatInput.style.display = target === '#profile' ? 'none' : 'block';
-        profileEdit.style.display = target === '#profile' ? 'block' : 'none';
-
-        if (target === '#profile') {
-            loadProfile();
-        } else {
-            loadMessages(target);
-        }
-        triggerAdsterraInterstitial();
+        elements.chatBox.innerHTML = `<div>--- ${target === '#main' ? 'Fórum' : target === '#profile' ? 'Perfil' : `Chat com ${target}`} ---</div>`;
+        elements.forumTab.classList.toggle('active', target === '#main');
+        elements.privateTab.classList.toggle('active', target !== '#main' && target !== '#profile');
+        elements.profileTab.classList.toggle('active', target === '#profile');
+        elements.privateTab.textContent = target === '#main' || target === '#profile' ? 'Privado' : `Chat: ${target}`;
+        elements.chatInput.style.display = target === '#profile' ? 'none' : 'block';
+        elements.profileEdit.style.display = target === '#profile' ? 'block' : 'none';
+        if (target === '#profile') loadProfile();
+        else loadMessages(target);
     }
 
     function loadProfile() {
         const user = userProfiles.get(username);
         if (user) {
-            editPhotoPreview.src = user.photo;
-            editBioInput.value = user.bio;
+            elements.editPhotoPreview.src = user.photo;
+            elements.editBioInput.value = user.bio;
         }
     }
 
-    editPhotoInput.addEventListener('change', () => {
-        const file = editPhotoInput.files[0];
+    elements.editPhotoInput.addEventListener('change', () => {
+        const file = elements.editPhotoInput.files[0];
         if (file) {
-            editPhotoPreview.src = URL.createObjectURL(file);
-            triggerAdsterraPopunder();
+            elements.editPhotoPreview.src = URL.createObjectURL(file);
         }
     });
 
-    saveProfileButton.addEventListener('click', () => {
-        const file = editPhotoInput.files[0];
-        const bio = editBioInput.value.trim();
-        if (file) {
-            uploadPhoto(file, (photoUrl) => {
-                updateProfile(photoUrl, bio);
-            });
-        } else {
-            updateProfile(userProfiles.get(username).photo, bio);
-        }
+    elements.saveProfileButton.addEventListener('click', () => {
+        const file = elements.editPhotoInput.files[0];
+        const bio = elements.editBioInput.value.trim();
+        if (file) uploadPhoto(file, (photoUrl) => updateProfile(photoUrl, bio));
+        else updateProfile(userProfiles.get(username).photo, bio);
     });
 
     function updateProfile(photo, bio) {
@@ -298,40 +270,170 @@ export function initializeChat() {
             localStorage.setItem('photo', photo);
             localStorage.setItem('bio', bio);
             displayMessage({ text: 'Perfil atualizado com sucesso!', system: true });
-            triggerAdsterraInterstitial();
         }).catch(err => {
             displayMessage({ text: 'Erro ao atualizar perfil: ' + err.message, system: true });
-            console.error(err);
         });
     }
 
     function updateStatusBar() {
         const user = userProfiles.get(username);
-        statusBar.textContent = `Nick: ${username} | Mensagens: ${user?.messageCount || 0}`;
-        triggerAdsterraPopunder();
+        elements.statusBar.textContent = `Nick: ${username} | Mensagens: ${user?.messageCount || 0} | Online: ${userProfiles.size}`;
     }
 
     function showProfilePopup(user) {
         const profile = userProfiles.get(user);
         if (profile) {
-            popupPhoto.src = profile.photo;
-            popupUsername.textContent = `Nick: ${profile.username}`;
-            popupBio.textContent = `Bio: ${profile.bio}`;
-            profilePopup.style.display = 'block';
-            triggerAdsterraInterstitial();
+            elements.popupPhoto.src = profile.photo;
+            elements.popupUsername.textContent = `Nick: ${profile.username}`;
+            elements.popupBio.textContent = `Bio: ${profile.bio}`;
+            elements.profilePopup.style.display = 'block';
         }
     }
 
     window.closePopup = function(id) {
         document.getElementById(id).style.display = 'none';
-        triggerAdsterraPopunder();
     };
 
     function resetMediaInput() {
-        messageInput.value = '';
-        mediaInput.value = '';
-        mediaPreview.innerHTML = '';
+        elements.messageInput.value = '';
+        elements.mediaInput.value = '';
+        elements.mediaPreview.innerHTML = '';
     }
+
+    // Optimized File Compression
+    async function compressFile(file, quality, maxSize) {
+        if (file.type.startsWith('video')) return file; // Skip compression for videos
+        return new Promise((resolve) => {
+            const img = new Image();
+            img.src = URL.createObjectURL(file);
+            img.onload = () => {
+                const canvas = document.createElement('canvas');
+                const scale = Math.min(maxSize / img.width, maxSize / img.height, 1);
+                canvas.width = img.width * scale;
+                canvas.height = img.height * scale;
+                const ctx = canvas.getContext('2d');
+                ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+                canvas.toBlob((blob) => resolve(blob), 'image/jpeg', quality);
+            };
+        });
+    }
+
+    // WebGL Video Player
+    function initWebGLVideo(container) {
+        const video = document.createElement('video');
+        video.src = container.dataset.src;
+        video.controls = true;
+        const canvas = document.createElement('canvas');
+        canvas.width = 200;
+        canvas.height = 150;
+        const gl = canvas.getContext('webgl');
+        if (!gl) return container.appendChild(video); // Fallback to normal video
+        container.appendChild(canvas);
+        const texture = gl.createTexture();
+        gl.bindTexture(gl.TEXTURE_2D, texture);
+        video.onplay = () => {
+            function render() {
+                gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, video);
+                requestAnimationFrame(render);
+            }
+            render();
+        };
+        video.play();
+    }
+
+    // mIRC-like Features
+    function notifyUser(message) {
+        if (message.user !== username && document.hidden) {
+            new Notification(`Nova mensagem de ${message.user}`, { body: message.text });
+        }
+    }
+
+    function startTypingDetection() {
+        elements.messageInput.addEventListener('input', () => {
+            update(ref(db, 'users/' + userId), { typing: true });
+            clearTimeout(typingUsers[userId]);
+            typingUsers[userId] = setTimeout(() => update(ref(db, 'users/' + userId), { typing: false }), 2000);
+        });
+    }
+
+    function changeTheme(theme) {
+        currentTheme = theme;
+        document.body.className = `theme-${theme}`;
+    }
+
+    function kickUser(target) {
+        if (userProfiles.get(username).admin) {
+            update(ref(db, 'users/' + userProfiles.get(target).userId), { online: false });
+            displayMessage({ text: `${target} foi kickado!`, system: true });
+        }
+    }
+
+    function banUser(target) {
+        if (userProfiles.get(username).admin) {
+            set(ref(db, 'bans/' + userProfiles.get(target).userId), { banned: true });
+            displayMessage({ text: `${target} foi banido!`, system: true });
+        }
+    }
+
+    function setTopic(topic) {
+        set(ref(db, 'forumTopic'), { text: topic, setBy: username });
+    }
+
+    onValue(ref(db, 'forumTopic'), (snapshot) => {
+        const topic = snapshot.val();
+        if (topic) elements.chatBox.insertAdjacentHTML('afterbegin', `<div class="topic">Tópico: ${topic.text} (por ${topic.setBy})</div>`);
+    });
+
+    // Additional mIRC Features (Examples)
+    window.commands = {
+        '/nick': (newNick) => update(ref(db, 'users/' + userId), { username: newNick }),
+        '/color': (color) => update(ref(db, 'users/' + userId), { color }),
+        '/theme': changeTheme,
+        '/kick': kickUser,
+        '/ban': banUser,
+        '/topic': setTopic,
+        '/whois': (user) => showProfilePopup(user),
+        '/clear': () => elements.chatBox.innerHTML = '',
+        '/pm': (user, msg) => sendPrivateMessage(user, msg),
+        '/me': (action) => pushMessage({ user: username, text: `* ${username} ${action}`, system: true }, currentChat),
+        '/join': (channel) => switchTab(channel),
+        '/ignore': (user) => localStorage.setItem(`ignore_${user}`, true),
+        '/unignore': (user) => localStorage.removeItem(`ignore_${user}`),
+        '/list': () => displayMessage({ text: `Usuários: ${Array.from(userProfiles.keys()).join(', ')}`, system: true }),
+        '/stats': () => displayMessage({ text: `Mensagens: ${messageCount}, Online: ${userProfiles.size}`, system: true }),
+        '/away': (msg) => update(ref(db, 'users/' + userId), { away: msg || 'Ausente' }),
+        '/back': () => update(ref(db, 'users/' + userId), { away: null }),
+        '/quote': (text) => pushMessage({ user: username, text: `> ${text}`, system: true }, currentChat),
+        '/roll': () => pushMessage({ user: username, text: `Rolou: ${Math.floor(Math.random() * 6) + 1}`, system: true }, currentChat),
+        '/time': () => displayMessage({ text: `Hora: ${new Date().toLocaleTimeString()}`, system: true })
+    };
+
+    elements.messageInput.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') {
+            const text = elements.messageInput.value.trim();
+            if (text.startsWith('/')) {
+                const [cmd, ...args] = text.split(' ');
+                if (window.commands[cmd]) window.commands[cmd](...args);
+                else displayMessage({ text: 'Comando inválido!', system: true });
+                elements.messageInput.value = '';
+            } else sendMessage();
+        }
+    });
+
+    function sendPrivateMessage(user, msg) {
+        pushMessage({ user: username, text: msg, timestamp: Date.now(), color: userProfiles.get(username).color, photo: userProfiles.get(username).photo }, user);
+    }
+
+    // Client-Server Integration (Basic Example)
+    const socket = new WebSocket('wss://your-server-url'); // Replace with your server
+    socket.onmessage = (event) => {
+        const data = JSON.parse(event.data);
+        if (data.type === 'message') displayMessage(data);
+    };
+
+    window.sendMessage = sendMessage;
+    window.switchTab = switchTab;
+    window.showProfilePopup = showProfilePopup;
 
     function triggerAdsterraInterstitial() {
         document.getElementById('adsterraInterstitialScript').innerHTML = `
@@ -350,29 +452,4 @@ export function initializeChat() {
         script.async = true;
         document.head.appendChild(script);
     }
-
-    logoutButton.addEventListener('click', () => {
-        update(ref(db, 'users/' + userId), { online: false });
-        localStorage.clear();
-        window.location.reload();
-        triggerAdsterraInterstitial();
-    });
-
-    mediaInput.addEventListener('change', () => {
-        const file = mediaInput.files[0];
-        if (file) {
-            mediaPreview.innerHTML = file.type.startsWith('video')
-                ? `<video src="${URL.createObjectURL(file)}" controls></video>`
-                : `<img src="${URL.createObjectURL(file)}" alt="Prévia">`;
-            triggerAdsterraPopunder();
-        }
-    });
-
-    messageInput.addEventListener('keypress', (e) => {
-        if (e.key === 'Enter') sendMessage();
-    });
-
-    window.sendMessage = sendMessage;
-    window.switchTab = switchTab;
-    window.showProfilePopup = showProfilePopup;
 }
