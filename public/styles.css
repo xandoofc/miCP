@@ -100,7 +100,7 @@ button:active {
 }
 
 .win95-list li img.profile-pic {
-    width: 24px; /* Slightly larger */
+    width: 24px;
     height: 24px;
     margin-right: 5px;
     border: 1px solid #000080;
@@ -147,7 +147,7 @@ button:active {
 }
 
 .message img.profile-pic {
-    width: 24px; /* Slightly larger */
+    width: 24px;
     height: 24px;
     margin-right: 5px;
     border: 1px solid #000080;

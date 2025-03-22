@@ -13,14 +13,16 @@
         <div class="win95-window" id="welcomeScreen">
             <div class="win95-titlebar">miCP - Login</div>
             <div class="win95-content">
-                <input type="text" id="usernameInput" placeholder="Nick (máx. 15)" maxlength="15" />
-                <input type="password" id="passwordInput" placeholder="Senha (admin: 681227)" style="display: none;" />
-                <input type="file" id="profilePhotoInput" accept="image/*" style="display: none;" />
-                <button id="photoButton" onclick="document.getElementById('profilePhotoInput').click()">Foto</button>
-                <div id="photoPreview" class="media-preview"></div>
-                <button id="joinButton">Conectar</button>
-                <button id="adminLoginButton" onclick="toggleAdminLogin()">Admin</button>
-                <div id="errorMessage" class="win95-text"></div>
+                <form id="loginForm">
+                    <input type="text" id="usernameInput" placeholder="Nick (máx. 15)" maxlength="15" />
+                    <input type="password" id="passwordInput" placeholder="Senha (admin: 681227)" style="display: none;" />
+                    <input type="file" id="profilePhotoInput" accept="image/*" style="display: none;" />
+                    <button type="button" id="photoButton" onclick="document.getElementById('profilePhotoInput').click()">Foto</button>
+                    <div id="photoPreview" class="media-preview"></div>
+                    <button type="submit" id="joinButton">Conectar</button>
+                    <button type="button" id="adminLoginButton" onclick="toggleAdminLogin()">Admin</button>
+                    <div id="errorMessage" class="win95-text"></div>
+                </form>
             </div>
         </div>
         <div class="win95-window" id="chatContainer" style="display: none;">

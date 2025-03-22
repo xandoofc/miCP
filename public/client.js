@@ -19,14 +19,15 @@ export function initializeChat() {
         hentaiTab: document.getElementById('hentaiTab'),
         sendButton: document.getElementById('sendButton'),
         chatInput: document.getElementById('chatInput'),
-        statusBar: document.getElementById('statusBar')
+        statusBar: document.getElementById('statusBar'),
+        loginForm: document.getElementById('loginForm')
     };
 
     let username = localStorage.getItem('username') || '';
     let userId = localStorage.getItem('userId') || generateUserId();
     let currentChat = '#main';
     let userProfiles = new Map();
-    let messageIds = new Set(); // Track message IDs to prevent duplication
+    let messageIds = new Set();
     let lastMessage = '';
     let lastMessageTime = 0;
 
@@ -36,10 +37,19 @@ export function initializeChat() {
         return id;
     }
 
+    function generateColor() {
+        return `rgb(${Math.floor(Math.random() * 256)}, ${Math.floor(Math.random() * 256)}, ${Math.floor(Math.random() * 256)})`;
+    }
+
+    function toggleAdminLogin() {
+        elements.passwordInput.style.display = elements.passwordInput.style.display === 'none' ? 'block' : 'none';
+    }
+
     if (username) loginUser(username, userId, localStorage.getItem('photo'), localStorage.getItem('bio'));
     else elements.welcomeScreen.style.display = 'block';
 
-    elements.joinButton.addEventListener('click', () => {
+    elements.loginForm.addEventListener('submit', (e) => {
+        e.preventDefault();
         username = elements.usernameInput.value.trim();
         const password = elements.passwordInput.value;
         if (username.length < 3) {
@@ -161,8 +171,6 @@ export function initializeChat() {
 
     window.sendMessage = sendMessage;
     window.switchTab = switchTab;
-    window.toggleAdminLogin = () => {
-        elements.passwordInput.style.display = elements.passwordInput.style.display === 'none' ? 'block' : 'none';
-    };
-    window.generateColor = () => `rgb(${Math.floor(Math.random() * 256)}, ${Math.floor(Math.random() * 256)}, ${Math.floor(Math.random() * 256)})`;
+    window.toggleAdminLogin = toggleAdminLogin;
+    window.generateColor = generateColor;
 }
