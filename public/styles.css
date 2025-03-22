@@ -1,15 +1,15 @@
 body {
     margin: 0;
     padding: 1vw;
-    background: #008080; /* Teal do Windows 95 */
-    font-family: 'MS Sans Serif', 'VT323', monospace;
-    color: #000;
+    background: #1a1a1a; /* Fundo escuro */
+    font-family: 'Courier New', monospace;
+    color: #00ff00; /* Verde retrô */
     font-size: 1rem;
 }
 
 .retro-border {
-    background: #c0c0c0;
-    border: 2px outset #fff;
+    background: #2e2e2e;
+    border: 2px solid #00b7eb; /* Azul vibrante */
     box-shadow: inset 1px 1px #000, inset -1px -1px #808080;
 }
 
@@ -23,8 +23,8 @@ body {
 }
 
 .retro-text {
-    font-family: 'MS Sans Serif', 'VT323', monospace;
-    color: #000;
+    font-family: 'Courier New', monospace;
+    color: #00ff00;
     text-shadow: none;
 }
 
@@ -39,22 +39,22 @@ body {
 }
 
 input, button, textarea {
-    font-family: 'MS Sans Serif', 'VT323', monospace;
+    font-family: 'Courier New', monospace;
     font-size: 1rem;
     padding: 0.3rem;
-    border: 2px inset #fff;
-    background: #fff;
-    color: #000;
+    border: 2px solid #00b7eb;
+    background: #2e2e2e;
+    color: #00ff00;
 }
 
 button {
-    background: #c0c0c0;
-    border: 2px outset #fff;
+    background: #00b7eb;
+    border: 2px solid #00ff00;
     cursor: pointer;
 }
 
 button:hover {
-    background: #e0e0e0;
+    background: #ff00ff;
 }
 
 button:active {
@@ -63,15 +63,15 @@ button:active {
 
 .chat-body {
     display: flex;
-    background: #c0c0c0;
-    border-top: 1px solid #000;
+    background: #2e2e2e;
+    border-top: 1px solid #00b7eb;
     min-height: 85vh;
 }
 
 .contacts {
     width: 30%;
     padding: 1rem;
-    border-right: 1px solid #000;
+    border-right: 1px solid #00b7eb;
     overflow-y: auto;
 }
 
@@ -86,7 +86,7 @@ button:active {
 }
 
 .retro-list li:hover {
-    background: #000080;
+    background: #ff00ff;
     color: #fff;
 }
 
@@ -98,19 +98,19 @@ button:active {
 
 .tabs {
     display: flex;
-    background: #c0c0c0;
-    border-bottom: 1px solid #000;
+    background: #2e2e2e;
+    border-bottom: 1px solid #00b7eb;
 }
 
 .tab {
     flex: 1;
     padding: 0.5rem;
     text-align: center;
-    border-right: 1px solid #808080;
+    border-right: 1px solid #00b7eb;
 }
 
 .tab.active {
-    background: #e0e0e0;
+    background: #ff00ff;
     border-bottom: none;
 }
 
@@ -118,8 +118,8 @@ button:active {
     flex: 1;
     padding: 1rem;
     overflow-y: auto;
-    background: #fff;
-    border: 2px inset #fff;
+    background: #1a1a1a;
+    border: 2px solid #00b7eb;
 }
 
 .message {
@@ -132,19 +132,19 @@ button:active {
     width: 30px;
     height: 30px;
     margin-right: 0.5rem;
-    border: 1px solid #000;
+    border: 1px solid #00b7eb;
 }
 
 .message img.media, .message .video-player video {
     max-width: 25vw;
     margin-left: 1rem;
-    border: 1px solid #000;
+    border: 1px solid #00b7eb;
 }
 
 .video-player {
-    background: #c0c0c0;
+    background: #2e2e2e;
     padding: 0.5rem;
-    border: 2px outset #fff;
+    border: 2px solid #00b7eb;
 }
 
 .video-player video {
@@ -153,8 +153,8 @@ button:active {
 
 .chat-input, .profile-edit {
     padding: 1rem;
-    background: #c0c0c0;
-    border-top: 1px solid #000;
+    background: #2e2e2e;
+    border-top: 1px solid #00b7eb;
 }
 
 .chat-input input[type="text"] {
@@ -164,13 +164,13 @@ button:active {
 .media-preview img, .media-preview video {
     max-width: 100px;
     margin-top: 0.5rem;
-    border: 1px solid #000;
+    border: 1px solid #00b7eb;
 }
 
 .status-bar {
     padding: 0.5rem;
-    background: #c0c0c0;
-    border-top: 1px solid #000;
+    background: #2e2e2e;
+    border-top: 1px solid #00b7eb;
 }
 
 .popup {
@@ -183,7 +183,7 @@ button:active {
 
 .profile-photo {
     max-width: 100px;
-    border: 1px solid #000;
+    border: 1px solid #00b7eb;
     margin: 1rem 0;
 }
 
@@ -203,7 +203,7 @@ button:active {
     }
     .contacts {
         border-right: none;
-        border-bottom: 1px solid #000;
+        border-bottom: 1px solid #00b7eb;
         max-height: 25vh;
     }
     .chat-input {

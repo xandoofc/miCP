@@ -219,7 +219,7 @@ export function initializeChat() {
                 <img src="${data.photo}" class="profile-pic" alt="${data.user}">
                 <span style="color: ${data.color}" onclick="showProfilePopup('${data.user}')">${data.user}</span>: ${data.text}
                 ${mediaContent}
-                <span style="color: #000080">[${new Date(data.timestamp).toLocaleTimeString()}]</span>
+                <span style="color: #00b7eb">[${new Date(data.timestamp).toLocaleTimeString()}]</span>
             `;
         }
         chatBox.appendChild(div);
