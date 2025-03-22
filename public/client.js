@@ -20,7 +20,8 @@ export function initializeChat() {
         sendButton: document.getElementById('sendButton'),
         chatInput: document.getElementById('chatInput'),
         statusBar: document.getElementById('statusBar'),
-        loginForm: document.getElementById('loginForm')
+        loginForm: document.getElementById('loginForm'),
+        profileEdit: document.getElementById('profileEdit')
     };
 
     let username = localStorage.getItem('username') || '';
@@ -96,6 +97,17 @@ export function initializeChat() {
     });
 
     function loadMessages(target) {
+        if (target === '#profile') {
+            elements.chatBox.innerHTML = `<div>--- Perfil ---</div>`;
+            elements.profileEdit.style.display = 'block';
+            const user = userProfiles.get(username);
+            if (user) {
+                document.getElementById('editPhotoPreview').src = user.photo;
+                document.getElementById('editBioInput').value = user.bio;
+            }
+            return;
+        }
+
         const dbRef = target === '#main' ? ref(db, 'forumMessages') : 
                      target === '#hentai' ? ref(db, 'hentaiMessages') : 
                      ref(db, 'privateMessages/' + [username, target].sort().join('-'));
@@ -155,12 +167,14 @@ export function initializeChat() {
     }
 
     function switchTab(target) {
+        if (target.includes('#') && target !== '#main' && target !== '#hentai' && target !== '#profile') return; // Prevent invalid paths
         currentChat = target;
         elements.forumTab.classList.toggle('active', target === '#main');
         elements.privateTab.classList.toggle('active', target !== '#main' && target !== '#profile' && target !== '#hentai');
         elements.profileTab.classList.toggle('active', target === '#profile');
         elements.hentaiTab.classList.toggle('active', target === '#hentai');
         elements.chatInput.style.display = target === '#profile' || target === '#hentai' ? 'none' : 'block';
+        elements.profileEdit.style.display = 'none';
         loadMessages(target);
     }
 
