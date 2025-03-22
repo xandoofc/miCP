@@ -98,6 +98,7 @@ export function initializeChat() {
             triggerAdsterraInterstitial();
         }).catch(err => {
             errorMessage.textContent = 'Erro ao conectar: ' + err.message;
+            console.error(err);
         });
     }
 
@@ -108,7 +109,7 @@ export function initializeChat() {
             const user = child.val();
             userProfiles.set(user.username, user);
             const li = document.createElement('li');
-            li.innerHTML = `<img src="${user.photo}" class="profile-pic" alt="${user.username}"> ${user.username}`;
+            li.innerHTML = `<img src="${user.photo}" class="profile-pic" alt="${user.username}" onerror="this.src='/default-profile.png'"> ${user.username}`;
             li.style.color = user.color;
             li.onclick = () => switchTab(user.username);
             li.ondblclick = () => showProfilePopup(user.username);
@@ -121,7 +122,9 @@ export function initializeChat() {
         const dbRef = target === '#main' ? ref(db, 'forumMessages') : ref(db, 'privateMessages/' + [username, target].sort().join('-'));
         off(dbRef);
         onValue(dbRef, (snapshot) => {
-            chatBox.innerHTML = `<div>--- ${target === '#main' ? 'Fórum' : `Chat com ${target}`} ---</div>`;
+            if (!chatBox.innerHTML.includes(`--- ${target === '#main' ? 'Fórum' : `Chat com ${target}`} ---`)) {
+                chatBox.innerHTML = `<div>--- ${target === '#main' ? 'Fórum' : `Chat com ${target}`} ---</div>`;
+            }
             snapshot.forEach(child => {
                 const data = child.val();
                 if ((currentChat === '#main' && target === '#main') ||
@@ -181,8 +184,14 @@ export function initializeChat() {
         uploadBytes(fileRef, file).then((snapshot) => {
             getDownloadURL(snapshot.ref).then((url) => {
                 callback(url);
+            }).catch(err => {
+                displayMessage({ text: 'Erro ao obter URL da foto: ' + err.message, system: true });
+                console.error(err);
             });
-        }).catch(err => displayMessage({ text: 'Erro ao enviar foto: ' + err.message, system: true }));
+        }).catch(err => {
+            displayMessage({ text: 'Erro ao enviar foto: ' + err.message, system: true });
+            console.error(err);
+        });
     }
 
     function uploadMedia(file, callback) {
@@ -190,8 +199,14 @@ export function initializeChat() {
         uploadBytes(fileRef, file).then((snapshot) => {
             getDownloadURL(snapshot.ref).then((url) => {
                 callback({ filePath: url, type: file.type.startsWith('video') ? 'video' : 'image' });
+            }).catch(err => {
+                displayMessage({ text: 'Erro ao obter URL da mídia: ' + err.message, system: true });
+                console.error(err);
             });
-        }).catch(err => displayMessage({ text: 'Erro ao enviar mídia: ' + err.message, system: true }));
+        }).catch(err => {
+            displayMessage({ text: 'Erro ao enviar mídia: ' + err.message, system: true });
+            console.error(err);
+        });
     }
 
     function pushMessage(message, target) {
@@ -200,6 +215,10 @@ export function initializeChat() {
             runTransaction(ref(db, 'users/' + userId + '/messageCount'), (count) => {
                 return (count || 0) + 1;
             });
+            displayMessage(message);
+        }).catch(err => {
+            displayMessage({ text: 'Erro ao enviar mensagem: ' + err.message, system: true });
+            console.error(err);
         });
     }
 
@@ -212,11 +231,11 @@ export function initializeChat() {
         } else {
             const mediaContent = data.media
                 ? data.media.type === 'video'
-                    ? `<div class="video-player"><video controls src="${data.media.filePath}"></video></div>`
-                    : `<img src="${data.media.filePath}" alt="Mídia" class="media">`
+                    ? `<div class="video-player"><video controls src="${data.media.filePath}" onerror="this.src='/default-profile.png'"></video></div>`
+                    : `<img src="${data.media.filePath}" alt="Mídia" class="media" onerror="this.src='/default-profile.png'">`
                 : '';
             div.innerHTML = `
-                <img src="${data.photo}" class="profile-pic" alt="${data.user}">
+                <img src="${data.photo}" class="profile-pic" alt="${data.user}" onerror="this.src='/default-profile.png'">
                 <span style="color: ${data.color}" onclick="showProfilePopup('${data.user}')">${data.user}</span>: ${data.text}
                 ${mediaContent}
                 <span style="color: #00b7eb">[${new Date(data.timestamp).toLocaleTimeString()}]</span>
@@ -280,7 +299,10 @@ export function initializeChat() {
             localStorage.setItem('bio', bio);
             displayMessage({ text: 'Perfil atualizado com sucesso!', system: true });
             triggerAdsterraInterstitial();
-        }).catch(err => displayMessage({ text: 'Erro ao atualizar perfil: ' + err.message, system: true }));
+        }).catch(err => {
+            displayMessage({ text: 'Erro ao atualizar perfil: ' + err.message, system: true });
+            console.error(err);
+        });
     }
 
     function updateStatusBar() {

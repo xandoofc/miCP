@@ -1,12 +1,17 @@
+// firebase-config.js
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js';
 
+// Your new Firebase configuration
 export const firebaseConfig = {
-    apiKey: "AIzaSyC7rQ2Gi9hElKD_WsUI1On5K6Bzq-25CwA",
-    authDomain: "micp-chat.firebaseapp.com",
-    projectId: "micp-chat",
-    storageBucket: "micp-chat.firebasestorage.app",
-    messagingSenderId: "349850829293",
-    appId: "1:349850829293:web:db975d86c67f83a26527e4"
+  apiKey: "AIzaSyAq9kTw-ZuPWnwSFzrfdBCRPpRBinCREdQ",
+  authDomain: "xyzfyrebase.firebaseapp.com",
+  databaseURL: "https://xyzfyrebase-default-rtdb.firebaseio.com",
+  projectId: "xyzfyrebase",
+  storageBucket: "xyzfyrebase.appspot.com",
+  messagingSenderId: "454185287009",
+  appId: "1:454185287009:web:4d5b7e8007f11b82b5d920",
+  measurementId: "G-SQPB4QBFFM"
 };
 
+// Initialize Firebase
 export const app = initializeApp(firebaseConfig);
