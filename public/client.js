@@ -167,7 +167,7 @@ export function initializeChat() {
     }
 
     function switchTab(target) {
-        if (target.includes('#') && target !== '#main' && target !== '#hentai' && target !== '#profile') return; // Prevent invalid paths
+        if (target.includes('#') && target !== '#main' && target !== '#hentai' && target !== '#profile') return;
         currentChat = target;
         elements.forumTab.classList.toggle('active', target === '#main');
         elements.privateTab.classList.toggle('active', target !== '#main' && target !== '#profile' && target !== '#hentai');

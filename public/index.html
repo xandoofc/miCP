@@ -3,39 +3,39 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>miCP - Retro Chat</title>
+    <title>miCP - IRC Chat</title>
     <link rel="stylesheet" href="/styles.css">
     <link href="https://fonts.googleapis.com/css2?family=MS+Sans+Serif&display=swap" rel="stylesheet">
     <link rel="preload" href="/default-profile.png" as="image">
 </head>
 <body>
-    <div class="win95-container">
-        <div class="win95-window" id="welcomeScreen">
-            <div class="win95-titlebar">miCP - Login</div>
-            <div class="win95-content">
+    <div class="irc-container">
+        <div class="irc-window" id="welcomeScreen">
+            <div class="irc-titlebar">miCP - Login</div>
+            <div class="irc-content">
                 <form id="loginForm">
-                    <input type="text" id="usernameInput" placeholder="Nick (máx. 15)" maxlength="15" />
-                    <input type="password" id="passwordInput" placeholder="Senha (admin: 681227)" style="display: none;" />
+                    <input type="text" id="usernameInput" placeholder="Nick (máx. 15)" maxlength="15" autocomplete="username" />
+                    <input type="password" id="passwordInput" placeholder="Senha (admin: 681227)" style="display: none;" autocomplete="current-password" />
                     <input type="file" id="profilePhotoInput" accept="image/*" style="display: none;" />
                     <button type="button" id="photoButton" onclick="document.getElementById('profilePhotoInput').click()">Foto</button>
                     <div id="photoPreview" class="media-preview"></div>
                     <button type="submit" id="joinButton">Conectar</button>
                     <button type="button" id="adminLoginButton" onclick="toggleAdminLogin()">Admin</button>
-                    <div id="errorMessage" class="win95-text"></div>
+                    <div id="errorMessage" class="irc-text"></div>
                 </form>
             </div>
         </div>
-        <div class="win95-window" id="chatContainer" style="display: none;">
-            <div class="win95-titlebar">miCP - <span id="currentUser"></span></div>
-            <div class="win95-content">
-                <div class="sidebar">
-                    <div class="win95-panel">
-                        <div class="win95-label">Online</div>
-                        <ul id="userList" class="win95-list"></ul>
+        <div class="irc-window" id="chatContainer" style="display: none;">
+            <div class="irc-titlebar">miCP - <span id="currentUser"></span></div>
+            <div class="irc-content">
+                <div class="user-list">
+                    <div class="irc-panel">
+                        <div class="irc-label">Online</div>
+                        <ul id="userList" class="irc-user-list"></ul>
                         <button id="logoutButton">Sair</button>
                     </div>
-                    <div class="win95-panel ad-section">
-                        <div class="win95-label">Ad</div>
+                    <div class="irc-panel ad-section">
+                        <div class="irc-label">Ad</div>
                         <div class="adsterra-banner">
                             <script type="text/javascript">
                                 atOptions = { 'key': '24e581f128309350f45e817f62637407', 'format': 'iframe', 'height': 250, 'width': 300, 'params': {} };
@@ -45,13 +45,13 @@
                     </div>
                 </div>
                 <div class="main-content">
-                    <div class="win95-tabs">
-                        <button class="win95-tab active" id="forumTab" onclick="switchTab('#main')">Fórum</button>
-                        <button class="win95-tab" id="privateTab">Privado</button>
-                        <button class="win95-tab" id="profileTab" onclick="switchTab('#profile')">Perfil</button>
-                        <button class="win95-tab" id="hentaiTab" onclick="switchTab('#hentai')">Hentai</button>
+                    <div class="irc-tabs">
+                        <button class="irc-tab active" id="forumTab" onclick="switchTab('#main')">Fórum</button>
+                        <button class="irc-tab" id="privateTab">Privado</button>
+                        <button class="irc-tab" id="profileTab" onclick="switchTab('#profile')">Perfil</button>
+                        <button class="irc-tab" id="hentaiTab" onclick="switchTab('#hentai')">Hentai</button>
                     </div>
-                    <div class="chat-box win95-text" id="chatBox"></div>
+                    <div class="chat-box irc-text" id="chatBox"></div>
                     <div class="chat-input" id="chatInput" style="display: none;">
                         <input type="text" id="messageInput" placeholder="Digite aqui..." />
                         <input type="file" id="mediaInput" accept="image/*,video/*" style="display: none;" />
@@ -66,9 +66,9 @@
                         <textarea id="editBioInput" placeholder="Sua bio (máx. 100)" maxlength="100"></textarea>
                         <button id="saveProfileButton">Salvar</button>
                     </div>
-                    <div class="win95-status" id="statusBar"></div>
+                    <div class="irc-status" id="statusBar"></div>
                     <div class="ad-section bottom-ad">
-                        <div class="win95-label">Ad</div>
+                        <div class="irc-label">Ad</div>
                         <div class="adsterra-footer">
                             <script type="text/javascript">
                                 atOptions = { 'key': '24e581f128309350f45e817f62637407', 'format': 'iframe', 'height': 90, 'width': 728, 'params': {} };
@@ -79,9 +79,9 @@
                 </div>
             </div>
         </div>
-        <div class="win95-window popup" id="adminPanel" style="display: none;">
-            <div class="win95-titlebar">Painel Admin</div>
-            <div class="win95-content">
+        <div class="irc-window popup" id="adminPanel" style="display: none;">
+            <div class="irc-titlebar">Painel Admin</div>
+            <div class="irc-content">
                 <input type="text" id="newForumInput" placeholder="Nome do novo fórum" />
                 <button id="createForumButton">Criar Fórum</button>
                 <button onclick="closePopup('adminPanel')">Fechar</button>

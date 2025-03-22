@@ -1,143 +1,148 @@
 body {
     margin: 0;
     padding: 0;
-    background: #008080;
-    font-family: 'MS Sans Serif', sans-serif;
-    color: #000000;
+    background: #000000; /* Dark IRC background */
+    font-family: 'Courier New', monospace; /* IRC-style monospaced font */
+    color: #FFFFFF;
     font-size: 12px;
     height: 100vh;
     overflow: auto;
 }
 
-.win95-container {
+.irc-container {
     width: 100%;
     height: 100vh;
     padding: 5px;
     box-sizing: border-box;
 }
 
-.win95-window {
-    background: #c0c0c0;
-    border: 2px outset #ffffff;
-    box-shadow: inset 1px 1px #808080;
+.irc-window {
+    background: #1C2526; /* Dark grey like IRC clients */
+    border: 1px solid #FFFFFF;
+    box-shadow: 2px 2px 5px rgba(255, 255, 255, 0.2);
 }
 
-.win95-titlebar {
-    background: #000080;
-    color: #ffffff;
+.irc-titlebar {
+    background: #000080; /* Blue titlebar from Win95 */
+    color: #FFFFFF;
     padding: 2px 5px;
     font-weight: bold;
+    border-bottom: 1px solid #FFFFFF;
 }
 
-.win95-content {
+.irc-content {
     padding: 5px;
+    display: flex;
 }
 
-.win95-text {
-    color: #000000;
+.irc-text {
+    color: #FFFFFF; /* White text for IRC readability */
 }
 
 input, button, textarea {
-    font-family: 'MS Sans Serif', sans-serif;
+    font-family: 'Courier New', monospace;
     font-size: 12px;
     padding: 3px;
-    border: 1px inset #808080;
-    background: #ffffff;
-    color: #000000;
+    border: 1px solid #FFFFFF;
+    background: #000000;
+    color: #FFFFFF;
 }
 
 button {
-    background: #c0c0c0;
-    border: 1px outset #ffffff;
+    background: #404040; /* Dark grey buttons */
+    border: 1px solid #FFFFFF;
     cursor: pointer;
 }
 
 button:hover {
-    background: #d4d0c8;
+    background: #606060;
 }
 
 button:active {
-    border: 1px inset #808080;
+    background: #202020;
 }
 
-.sidebar {
-    width: 250px;
-    float: left;
+.user-list {
+    width: 200px; /* User list on the right */
+    order: 1; /* Moves it to the right */
     height: 90vh;
 }
 
-.win95-panel {
+.irc-panel {
     margin-bottom: 5px;
     padding: 5px;
-    background: #c0c0c0;
-    border: 1px inset #808080;
+    background: #1C2526;
+    border: 1px solid #FFFFFF;
 }
 
-.win95-label {
+.irc-label {
     background: #000080;
-    color: #ffffff;
+    color: #FFFFFF;
     padding: 2px;
     margin-bottom: 3px;
 }
 
-.win95-list {
+.irc-user-list {
     list-style: none;
     padding: 0;
     max-height: 70vh;
     overflow-y: auto;
+    color: #00FF00; /* Green nicknames like IRC */
 }
 
-.win95-list li {
+.irc-user-list li {
     padding: 3px;
     display: flex;
     align-items: center;
     cursor: pointer;
 }
 
-.win95-list li:hover {
+.irc-user-list li:hover {
     background: #000080;
-    color: #ffffff;
+    color: #FFFFFF;
 }
 
-.win95-list li img.profile-pic {
+.irc-user-list li img.profile-pic {
     width: 24px;
     height: 24px;
     margin-right: 5px;
-    border: 1px solid #000080;
+    border: 1px solid #FFFFFF;
 }
 
 .main-content {
-    margin-left: 260px;
+    flex: 1; /* Takes remaining space */
     height: 90vh;
     display: flex;
     flex-direction: column;
+    order: 0; /* Chat on the left */
 }
 
-.win95-tabs {
+.irc-tabs {
     display: flex;
-    background: #c0c0c0;
-    border-bottom: 1px inset #808080;
+    background: #1C2526;
+    border-bottom: 1px solid #FFFFFF;
 }
 
-.win95-tab {
+.irc-tab {
     flex: 1;
     padding: 3px;
     text-align: center;
-    background: #c0c0c0;
-    border: 1px outset #ffffff;
+    background: #404040;
+    border: 1px solid #FFFFFF;
+    color: #FFFFFF;
 }
 
-.win95-tab.active {
-    background: #ffffff;
-    border: 1px inset #808080;
+.irc-tab.active {
+    background: #000080;
+    color: #FFFFFF;
 }
 
 .chat-box {
     flex: 1;
     padding: 5px;
     overflow-y: auto;
-    background: #ffffff;
-    border: 1px inset #808080;
+    background: #000000; /* Black chat background */
+    border: 1px solid #FFFFFF;
 }
 
 .message {
@@ -150,7 +155,7 @@ button:active {
     width: 24px;
     height: 24px;
     margin-right: 5px;
-    border: 1px solid #000080;
+    border: 1px solid #FFFFFF;
 }
 
 .message img.media {
@@ -163,7 +168,7 @@ button:active {
     width: 250px;
     height: 180px;
     background: #000000;
-    border: 1px inset #808080;
+    border: 1px solid #FFFFFF;
 }
 
 .video-player video {
@@ -175,7 +180,7 @@ button:active {
     position: absolute;
     bottom: 0;
     width: 100%;
-    background: #c0c0c0;
+    background: #404040;
     padding: 5px;
     display: flex;
     align-items: center;
@@ -194,8 +199,8 @@ button:active {
 
 .chat-input, .profile-edit {
     padding: 5px;
-    background: #c0c0c0;
-    border-top: 1px inset #808080;
+    background: #1C2526;
+    border-top: 1px solid #FFFFFF;
 }
 
 .media-preview img, .media-preview video {
@@ -203,11 +208,11 @@ button:active {
     margin-top: 3px;
 }
 
-.win95-status {
+.irc-status {
     padding: 3px;
     background: #000080;
-    color: #ffffff;
-    border-top: 1px inset #808080;
+    color: #FFFFFF;
+    border-top: 1px solid #FFFFFF;
 }
 
 .ad-section {
@@ -229,23 +234,23 @@ button:active {
 
 .profile-photo {
     max-width: 80px;
-    border: 1px solid #000080;
+    border: 1px solid #FFFFFF;
     margin: 5px 0;
 }
 
 @media (max-width: 768px) {
-    .sidebar {
+    .user-list {
         width: 100%;
-        float: none;
+        order: 0;
         height: auto;
     }
     .main-content {
-        margin-left: 0;
+        order: 1;
     }
-    .win95-tabs {
+    .irc-tabs {
         flex-direction: row;
     }
-    .win95-tab {
+    .irc-tab {
         padding: 2px;
         font-size: 10px;
     }
