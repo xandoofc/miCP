@@ -85,7 +85,6 @@
         const db = getDatabase(app);
         const storage = getStorage(app);
 
-        // Exportar para client.js
         window.firebaseApp = { app, db, storage, ref, set, onValue, off, push, update, transaction, storageRef, uploadBytes, getDownloadURL };
         initializeChat();
     </script>

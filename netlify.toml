@@ -1,0 +1,4 @@
+[build]
+  publish = "public"
+  # Descomente e ajuste se adicionar funções
+  # functions = "netlify/functions"

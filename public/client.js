@@ -38,7 +38,6 @@ export function initializeChat() {
         return `rgb(${Math.floor(Math.random() * 256)}, ${Math.floor(Math.random() * 256)}, ${Math.floor(Math.random() * 256)})`;
     }
 
-    // Autologin
     if (username) {
         loginUser(username, userId, localStorage.getItem('photo'), localStorage.getItem('bio'));
     } else {
@@ -76,7 +75,6 @@ export function initializeChat() {
         });
     }
 
-    // Atualizar lista de usuários
     onValue(ref(db, 'users'), (snapshot) => {
         userList.innerHTML = '';
         userProfiles.clear();
@@ -93,10 +91,9 @@ export function initializeChat() {
         updateStatusBar();
     });
 
-    // Carregar mensagens
     function loadMessages(target) {
         const dbRef = target === '#main' ? ref(db, 'forumMessages') : ref(db, 'privateMessages/' + [username, target].sort().join('-'));
-        off(dbRef); // Remove listeners anteriores
+        off(dbRef);
         onValue(dbRef, (snapshot) => {
             chatBox.innerHTML = `<div>--- ${target === '#main' ? 'Fórum' : `Chat com ${target}`} ---</div>`;
             snapshot.forEach(child => {
