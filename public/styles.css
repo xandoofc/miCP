@@ -1,63 +1,50 @@
 body {
     margin: 0;
-    padding: 10px;
-    background: #1a1a1a;
+    padding: 5px;
+    background: #000080; /* mIRC blue */
     font-family: 'MS Sans Serif', sans-serif;
-    color: #c0c0c0;
-    font-size: 14px;
+    color: #00ff00; /* Green text like mIRC */
+    font-size: 12px;
 }
 
-.win95-container {
-    max-width: 1200px;
+.mirc-container {
+    max-width: 1000px;
     margin: 0 auto;
 }
 
-.win95-window {
-    background: #2e2e2e;
-    border: 2px solid #808080;
-    box-shadow: inset 1px 1px #000, inset -1px -1px #808080;
-    border-top: 2px solid #d4d0c8;
-    border-left: 2px solid #d4d0c8;
+.mirc-window {
+    background: #000000;
+    border: 1px solid #c0c0c0;
+    box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.5);
 }
 
-.win95-titlebar {
-    background: linear-gradient(to right, #000080, #1084d0);
-    color: #fff;
-    padding: 3px 5px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
+.mirc-titlebar {
+    background: #000080;
+    color: #ffffff;
+    padding: 2px 5px;
+    font-weight: bold;
 }
 
-.win95-close {
-    background: #c0c0c0;
-    border: 1px solid #000;
-    width: 20px;
-    height: 20px;
-    font-size: 12px;
-    cursor: pointer;
+.mirc-content {
+    padding: 5px;
 }
 
-.win95-content {
-    padding: 10px;
-}
-
-.win95-text {
-    color: #c0c0c0;
+.mirc-text {
+    color: #00ff00;
 }
 
 input, button, textarea {
     font-family: 'MS Sans Serif', sans-serif;
-    font-size: 14px;
-    padding: 5px;
-    border: 1px solid #808080;
-    background: #2e2e2e;
-    color: #c0c0c0;
+    font-size: 12px;
+    padding: 3px;
+    border: 1px solid #c0c0c0;
+    background: #000000;
+    color: #00ff00;
 }
 
 button {
     background: #c0c0c0;
-    border: 1px outset #fff;
+    border: 1px outset #ffffff;
     cursor: pointer;
 }
 
@@ -70,117 +57,134 @@ button:active {
 }
 
 .sidebar {
-    width: 300px;
+    width: 250px;
     float: left;
-    height: 80vh;
+    height: 85vh;
 }
 
-.win95-panel {
-    margin-bottom: 10px;
-    padding: 5px;
-    background: #2e2e2e;
-    border: 1px solid #808080;
-}
-
-.win95-label {
-    background: #000080;
-    color: #fff;
-    padding: 2px 5px;
+.mirc-panel {
     margin-bottom: 5px;
+    padding: 5px;
+    background: #000000;
+    border: 1px solid #c0c0c0;
 }
 
-.win95-list {
+.mirc-label {
+    background: #000080;
+    color: #ffffff;
+    padding: 2px;
+    margin-bottom: 3px;
+}
+
+.mirc-list {
     list-style: none;
     padding: 0;
     max-height: 60vh;
     overflow-y: auto;
 }
 
-.win95-list li {
-    padding: 5px;
+.mirc-list li {
+    padding: 3px;
     display: flex;
     align-items: center;
     cursor: pointer;
 }
 
-.win95-list li:hover {
-    background: #ff00ff;
-    color: #fff;
+.mirc-list li:hover {
+    background: #00ff00;
+    color: #000000;
 }
 
-.win95-list li img.profile-pic {
-    width: 20px; /* Reduced size */
-    height: 20px;
+.mirc-list li img.profile-pic {
+    width: 16px; /* Smaller size for online list */
+    height: 16px;
     margin-right: 5px;
     border: 1px solid #00b7eb;
 }
 
 .main-content {
-    margin-left: 320px;
-    height: 80vh;
+    margin-left: 260px;
+    height: 85vh;
     display: flex;
     flex-direction: column;
 }
 
-.win95-tabs {
+.mirc-tabs {
     display: flex;
-    background: #2e2e2e;
-    border-bottom: 1px solid #808080;
+    background: #000000;
+    border-bottom: 1px solid #c0c0c0;
 }
 
-.win95-tab {
+.mirc-tab {
     flex: 1;
-    padding: 5px;
+    padding: 3px;
     text-align: center;
     background: #c0c0c0;
-    border: 1px outset #fff;
+    border: 1px outset #ffffff;
 }
 
-.win95-tab.active {
-    background: #d4d0c8;
-    border: 1px inset #808080;
+.mirc-tab.active {
+    background: #000000;
+    color: #00ff00;
+    border: 1px inset #c0c0c0;
 }
 
 .chat-box {
     flex: 1;
-    padding: 10px;
+    padding: 5px;
     overflow-y: auto;
-    background: #1a1a1a;
-    border: 1px solid #808080;
+    background: #000000;
+    border: 1px solid #c0c0c0;
 }
 
 .message {
-    margin: 5px 0;
+    margin: 2px 0;
     display: flex;
     align-items: center;
 }
 
+.message img.profile-pic {
+    width: 16px; /* Smaller size in chat */
+    height: 16px;
+    margin-right: 5px;
+    border: 1px solid #00b7eb;
+}
+
 .message img.media {
-    max-width: 200px;
+    max-width: 150px;
     margin-left: 10px;
 }
 
 .video-player {
-    background: #2e2e2e;
+    background: #000000;
     padding: 5px;
-    border: 1px solid #808080;
+    border: 1px solid #c0c0c0;
 }
 
 .chat-input, .profile-edit {
-    padding: 10px;
-    background: #2e2e2e;
-    border-top: 1px solid #808080;
+    padding: 5px;
+    background: #000000;
+    border-top: 1px solid #c0c0c0;
 }
 
 .media-preview img, .media-preview video {
-    max-width: 100px;
+    max-width: 80px;
+    margin-top: 3px;
+}
+
+.mirc-status {
+    padding: 3px;
+    background: #000080;
+    color: #ffffff;
+    border-top: 1px solid #c0c0c0;
+}
+
+.ad-section {
     margin-top: 5px;
 }
 
-.win95-status {
-    padding: 5px;
-    background: #2e2e2e;
-    border-top: 1px solid #808080;
+.bottom-ad {
+    text-align: center;
 }
 
 .popup {
@@ -189,13 +193,13 @@ button:active {
     left: 50%;
     transform: translate(-50%, -50%);
     z-index: 1000;
-    width: 300px;
+    width: 250px;
 }
 
 .profile-photo {
-    max-width: 80px;
+    max-width: 60px;
     border: 1px solid #00b7eb;
-    margin: 10px 0;
+    margin: 5px 0;
 }
 
 @media (max-width: 768px) {
@@ -207,10 +211,16 @@ button:active {
     .main-content {
         margin-left: 0;
     }
-    .win95-tabs {
+    .mirc-tabs {
         flex-direction: column;
     }
-    .win95-tab {
+    .mirc-tab {
         width: 100%;
+    }
+    .chat-box {
+        height: 50vh;
+    }
+    .mirc-container {
+        padding: 0;
     }
 }

@@ -40,11 +40,7 @@ export function initializeChat() {
     let messageCount = 0;
     let lastMessage = '';
     let lastMessageTime = 0;
-
-    // mIRC-like Features State
     let userColors = {};
-    let chatThemes = ['dark', 'light'];
-    let currentTheme = 'dark';
     let typingUsers = new Set();
 
     function generateUserId() {
@@ -74,10 +70,7 @@ export function initializeChat() {
 
     elements.profilePhotoInput.addEventListener('change', () => {
         const file = elements.profilePhotoInput.files[0];
-        if (file) {
-            elements.photoPreview.innerHTML = `<img src="${URL.createObjectURL(file)}" alt="Prévia">`;
-            triggerAdsterraPopunder();
-        }
+        if (file) elements.photoPreview.innerHTML = `<img src="${URL.createObjectURL(file)}" alt="Prévia">`;
     });
 
     function loginUser(username, userId, photo = '/default-profile.png', bio = 'Sem bio ainda.') {
@@ -94,7 +87,6 @@ export function initializeChat() {
             localStorage.setItem('bio', bio);
             updateStatusBar();
             switchTab('#main');
-            triggerAdsterraInterstitial();
             startTypingDetection();
         }).catch(err => {
             elements.errorMessage.textContent = 'Erro ao conectar: ' + err.message;
@@ -110,7 +102,7 @@ export function initializeChat() {
             userProfiles.set(user.username, user);
             userColors[user.username] = user.color;
             const li = document.createElement('li');
-            li.innerHTML = `<img src="${user.photo}" class="profile-pic" alt="${user.username}" onerror="this.src='/default-profile.png'"> ${user.username} ${user.typing ? '[Typing...]' : ''}`;
+            li.innerHTML = `<img src="${user.photo}" class="profile-pic" alt="${user.username}" onerror="this.src='/default-profile.png'"> ${user.username} ${user.typing ? '[Digitando...]' : ''}`;
             li.style.color = user.color;
             li.onclick = () => switchTab(user.username);
             li.ondblclick = () => showProfilePopup(user.username);
@@ -170,7 +162,7 @@ export function initializeChat() {
     }
 
     async function uploadPhoto(file, callback) {
-        const compressedFile = await compressFile(file, 0.7, 200); // Compress to 70% quality, max 200px
+        const compressedFile = await compressFile(file, 0.7, 100); // Smaller for profile
         const fileRef = storageRef(storage, 'profiles/' + userId + '-' + Date.now() + '.jpg');
         uploadBytes(fileRef, compressedFile).then((snapshot) => {
             getDownloadURL(snapshot.ref).then(callback).catch(err => {
@@ -182,7 +174,7 @@ export function initializeChat() {
     }
 
     async function uploadMedia(file, callback) {
-        const compressedFile = await compressFile(file, 0.8, 800); // Higher quality for media, max 800px
+        const compressedFile = await compressFile(file, 0.8, 600); // Optimized for media
         const fileRef = storageRef(storage, 'uploads/' + Date.now() + '.media');
         uploadBytes(fileRef, compressedFile).then((snapshot) => {
             getDownloadURL(snapshot.ref).then((url) => {
@@ -207,6 +199,7 @@ export function initializeChat() {
     }
 
     function displayMessage(data) {
+        if (localStorage.getItem(`ignore_${data.user}`)) return;
         const div = document.createElement('div');
         div.className = 'message';
         if (data.system) {
@@ -253,9 +246,7 @@ export function initializeChat() {
 
     elements.editPhotoInput.addEventListener('change', () => {
         const file = elements.editPhotoInput.files[0];
-        if (file) {
-            elements.editPhotoPreview.src = URL.createObjectURL(file);
-        }
+        if (file) elements.editPhotoPreview.src = URL.createObjectURL(file);
     });
 
     elements.saveProfileButton.addEventListener('click', () => {
@@ -277,7 +268,7 @@ export function initializeChat() {
 
     function updateStatusBar() {
         const user = userProfiles.get(username);
-        elements.statusBar.textContent = `Nick: ${username} | Mensagens: ${user?.messageCount || 0} | Online: ${userProfiles.size}`;
+        elements.statusBar.textContent = `Nick: ${username} | Msgs: ${user?.messageCount || 0} | Online: ${userProfiles.size}`;
     }
 
     function showProfilePopup(user) {
@@ -300,9 +291,8 @@ export function initializeChat() {
         elements.mediaPreview.innerHTML = '';
     }
 
-    // Optimized File Compression
     async function compressFile(file, quality, maxSize) {
-        if (file.type.startsWith('video')) return file; // Skip compression for videos
+        if (file.type.startsWith('video')) return file;
         return new Promise((resolve) => {
             const img = new Image();
             img.src = URL.createObjectURL(file);
@@ -318,16 +308,15 @@ export function initializeChat() {
         });
     }
 
-    // WebGL Video Player
     function initWebGLVideo(container) {
         const video = document.createElement('video');
         video.src = container.dataset.src;
         video.controls = true;
         const canvas = document.createElement('canvas');
-        canvas.width = 200;
-        canvas.height = 150;
+        canvas.width = 150;
+        canvas.height = 100;
         const gl = canvas.getContext('webgl');
-        if (!gl) return container.appendChild(video); // Fallback to normal video
+        if (!gl) return container.appendChild(video);
         container.appendChild(canvas);
         const texture = gl.createTexture();
         gl.bindTexture(gl.TEXTURE_2D, texture);
@@ -341,7 +330,6 @@ export function initializeChat() {
         video.play();
     }
 
-    // mIRC-like Features
     function notifyUser(message) {
         if (message.user !== username && document.hidden) {
             new Notification(`Nova mensagem de ${message.user}`, { body: message.text });
@@ -356,42 +344,13 @@ export function initializeChat() {
         });
     }
 
-    function changeTheme(theme) {
-        currentTheme = theme;
-        document.body.className = `theme-${theme}`;
-    }
-
-    function kickUser(target) {
-        if (userProfiles.get(username).admin) {
-            update(ref(db, 'users/' + userProfiles.get(target).userId), { online: false });
-            displayMessage({ text: `${target} foi kickado!`, system: true });
-        }
-    }
-
-    function banUser(target) {
-        if (userProfiles.get(username).admin) {
-            set(ref(db, 'bans/' + userProfiles.get(target).userId), { banned: true });
-            displayMessage({ text: `${target} foi banido!`, system: true });
-        }
-    }
-
-    function setTopic(topic) {
-        set(ref(db, 'forumTopic'), { text: topic, setBy: username });
-    }
-
-    onValue(ref(db, 'forumTopic'), (snapshot) => {
-        const topic = snapshot.val();
-        if (topic) elements.chatBox.insertAdjacentHTML('afterbegin', `<div class="topic">Tópico: ${topic.text} (por ${topic.setBy})</div>`);
-    });
-
-    // Additional mIRC Features (Examples)
+    // mIRC-like Commands
     window.commands = {
         '/nick': (newNick) => update(ref(db, 'users/' + userId), { username: newNick }),
         '/color': (color) => update(ref(db, 'users/' + userId), { color }),
-        '/theme': changeTheme,
-        '/kick': kickUser,
-        '/ban': banUser,
-        '/topic': setTopic,
+        '/kick': (target) => userProfiles.get(username).admin && update(ref(db, 'users/' + userProfiles.get(target).userId), { online: false }),
+        '/ban': (target) => userProfiles.get(username).admin && set(ref(db, 'bans/' + userProfiles.get(target).userId), { banned: true }),
+        '/topic': (topic) => set(ref(db, 'forumTopic'), { text: topic, setBy: username }),
         '/whois': (user) => showProfilePopup(user),
         '/clear': () => elements.chatBox.innerHTML = '',
         '/pm': (user, msg) => sendPrivateMessage(user, msg),
@@ -405,7 +364,13 @@ export function initializeChat() {
         '/back': () => update(ref(db, 'users/' + userId), { away: null }),
         '/quote': (text) => pushMessage({ user: username, text: `> ${text}`, system: true }, currentChat),
         '/roll': () => pushMessage({ user: username, text: `Rolou: ${Math.floor(Math.random() * 6) + 1}`, system: true }, currentChat),
-        '/time': () => displayMessage({ text: `Hora: ${new Date().toLocaleTimeString()}`, system: true })
+        '/time': () => displayMessage({ text: `Hora: ${new Date().toLocaleTimeString()}`, system: true }),
+        '/mode': (mode) => displayMessage({ text: `Modo ${mode} não implementado`, system: true }),
+        '/op': (user) => userProfiles.get(username).admin && update(ref(db, 'users/' + userProfiles.get(user).userId), { admin: true }),
+        '/deop': (user) => userProfiles.get(username).admin && update(ref(db, 'users/' + userProfiles.get(user).userId), { admin: false }),
+        '/mute': (user) => userProfiles.get(username).admin && update(ref(db, 'users/' + userProfiles.get(user).userId), { muted: true }),
+        '/unmute': (user) => userProfiles.get(username).admin && update(ref(db, 'users/' + userProfiles.get(user).userId), { muted: false }),
+        '/invite': (user) => displayMessage({ text: `${user} foi convidado (simulação)`, system: true })
     };
 
     elements.messageInput.addEventListener('keypress', (e) => {
@@ -424,32 +389,15 @@ export function initializeChat() {
         pushMessage({ user: username, text: msg, timestamp: Date.now(), color: userProfiles.get(username).color, photo: userProfiles.get(username).photo }, user);
     }
 
-    // Client-Server Integration (Basic Example)
-    const socket = new WebSocket('wss://your-server-url'); // Replace with your server
-    socket.onmessage = (event) => {
-        const data = JSON.parse(event.data);
-        if (data.type === 'message') displayMessage(data);
-    };
+    // WebSocket Fix (Removed placeholder, using Firebase instead)
+    // If you have a WebSocket server, replace with real URL and uncomment:
+    // const socket = new WebSocket('wss://your-real-server-url');
+    // socket.onmessage = (event) => {
+    //     const data = JSON.parse(event.data);
+    //     if (data.type === 'message') displayMessage(data);
+    // };
 
     window.sendMessage = sendMessage;
     window.switchTab = switchTab;
     window.showProfilePopup = showProfilePopup;
-
-    function triggerAdsterraInterstitial() {
-        document.getElementById('adsterraInterstitialScript').innerHTML = `
-            (function() {
-                var s = document.createElement('script');
-                s.src = '//pl26183298.effectiveratecpm.com/d3/57/0b/d3570b7eea87093e0e4caffd3d7a819a.js';
-                s.async = true;
-                document.head.appendChild(s);
-            })();
-        `;
-    }
-
-    function triggerAdsterraPopunder() {
-        const script = document.createElement('script');
-        script.src = '//pl26183298.effectiveratecpm.com/d3/57/0b/d3570b7eea87093e0e4caffd3d7a819a.js';
-        script.async = true;
-        document.head.appendChild(script);
-    }
 }

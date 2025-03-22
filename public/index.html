@@ -7,39 +7,31 @@
     <link rel="stylesheet" href="/styles.css">
     <link href="https://fonts.googleapis.com/css2?family=MS+Sans+Serif&display=swap" rel="stylesheet">
     <link rel="preload" href="/default-profile.png" as="image">
-    <script type='text/javascript' src='//pl26183298.effectiveratecpm.com/d3/57/0b/d3570b7eea87093e0e4caffd3d7a819a.js'></script>
-    <script type="text/javascript" id="adsterraInterstitialScript"></script>
 </head>
 <body>
-    <div class="win95-container">
-        <div class="win95-window" id="welcomeScreen">
-            <div class="win95-titlebar">
-                <span>miCP - Login</span>
-                <button class="win95-close" onclick="alert('Close not implemented')">X</button>
-            </div>
-            <div class="win95-content">
+    <div class="mirc-container">
+        <div class="mirc-window" id="welcomeScreen">
+            <div class="mirc-titlebar">miCP - Login</div>
+            <div class="mirc-content">
                 <input type="text" id="usernameInput" placeholder="Nick (máx. 15)" maxlength="15" />
                 <input type="file" id="profilePhotoInput" accept="image/*" style="display: none;" />
                 <button id="photoButton" onclick="document.getElementById('profilePhotoInput').click()">Foto</button>
                 <div id="photoPreview" class="media-preview"></div>
                 <button id="joinButton">Conectar</button>
-                <div id="errorMessage" class="win95-text"></div>
+                <div id="errorMessage" class="mirc-text"></div>
             </div>
         </div>
-        <div class="win95-window" id="chatContainer" style="display: none;">
-            <div class="win95-titlebar">
-                <span>miCP - <span id="currentUser"></span></span>
-                <button class="win95-close" onclick="document.getElementById('logoutButton').click()">X</button>
-            </div>
-            <div class="win95-content">
+        <div class="mirc-window" id="chatContainer" style="display: none;">
+            <div class="mirc-titlebar">miCP - <span id="currentUser"></span></div>
+            <div class="mirc-content">
                 <div class="sidebar">
-                    <div class="win95-panel">
-                        <div class="win95-label">Online</div>
-                        <ul id="userList" class="win95-list"></ul>
+                    <div class="mirc-panel">
+                        <div class="mirc-label">Online</div>
+                        <ul id="userList" class="mirc-list"></ul>
                         <button id="logoutButton">Sair</button>
                     </div>
-                    <div class="win95-panel adsterra-section">
-                        <div class="win95-label">Publicidade</div>
+                    <div class="mirc-panel ad-section">
+                        <div class="mirc-label">Ad</div>
                         <div class="adsterra-banner">
                             <script type="text/javascript">
                                 atOptions = {
@@ -55,12 +47,12 @@
                     </div>
                 </div>
                 <div class="main-content">
-                    <div class="win95-tabs">
-                        <button class="win95-tab active" id="forumTab" onclick="switchTab('#main')">Fórum</button>
-                        <button class="win95-tab" id="privateTab">Privado</button>
-                        <button class="win95-tab" id="profileTab" onclick="switchTab('#profile')">Perfil</button>
+                    <div class="mirc-tabs">
+                        <button class="mirc-tab active" id="forumTab" onclick="switchTab('#main')">Fórum</button>
+                        <button class="mirc-tab" id="privateTab">Privado</button>
+                        <button class="mirc-tab" id="profileTab" onclick="switchTab('#profile')">Perfil</button>
                     </div>
-                    <div class="chat-box win95-text" id="chatBox"></div>
+                    <div class="chat-box mirc-text" id="chatBox"></div>
                     <div class="chat-input" id="chatInput" style="display: none;">
                         <input type="text" id="messageInput" placeholder="Digite aqui..." />
                         <input type="file" id="mediaInput" accept="image/*,video/*" style="display: none;" />
@@ -75,19 +67,31 @@
                         <textarea id="editBioInput" placeholder="Sua bio (máx. 100)" maxlength="100"></textarea>
                         <button id="saveProfileButton">Salvar</button>
                     </div>
-                    <div class="win95-status" id="statusBar"></div>
+                    <div class="mirc-status" id="statusBar"></div>
+                    <div class="ad-section bottom-ad">
+                        <div class="mirc-label">Ad</div>
+                        <div class="adsterra-footer">
+                            <script type="text/javascript">
+                                atOptions = {
+                                    'key': '24e581f128309350f45e817f62637407',
+                                    'format': 'iframe',
+                                    'height': 90,
+                                    'width': 728,
+                                    'params': {}
+                                };
+                            </script>
+                            <script type="text/javascript" src="//www.highperformanceformat.com/24e581f128309350f45e817f62637407/invoke.js"></script>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
-        <div class="win95-window popup" id="profilePopup" style="display: none;">
-            <div class="win95-titlebar">
-                <span>Perfil</span>
-                <button class="win95-close" onclick="closePopup('profilePopup')">X</button>
-            </div>
-            <div class="win95-content">
+        <div class="mirc-window popup" id="profilePopup" style="display: none;">
+            <div class="mirc-titlebar">Perfil</div>
+            <div class="mirc-content">
                 <img id="popupPhoto" src="" alt="Foto" class="profile-photo" />
-                <div id="popupUsername" class="win95-text"></div>
-                <div id="popupBio" class="win95-text"></div>
+                <div id="popupUsername" class="mirc-text"></div>
+                <div id="popupBio" class="mirc-text"></div>
                 <button onclick="closePopup('profilePopup')">Fechar</button>
             </div>
         </div>
