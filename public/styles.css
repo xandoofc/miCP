@@ -1,148 +1,206 @@
+@font-face {
+    font-family: 'Pixel LCD7';
+    src: url('https://db.onlinewebfonts.com/t/6a788a6451600cf07f7b5a7e7b038c40.ttf') format('truetype');
+}
+
 body {
     margin: 0;
     padding: 0;
-    background: #000000; /* Dark IRC background */
-    font-family: 'Courier New', monospace; /* IRC-style monospaced font */
-    color: #FFFFFF;
-    font-size: 12px;
+    font-family: 'Pixel LCD7', monospace;
+    font-size: 14px;
     height: 100vh;
     overflow: auto;
+    transition: all 0.3s ease;
 }
 
-.irc-container {
+/* Theme: Vaporwave (default) */
+.theme-vaporwave {
+    background: linear-gradient(135deg, #ff00ff, #00ffff);
+    color: #ffffff;
+}
+.theme-vaporwave .retro-window {
+    background: rgba(0, 0, 0, 0.7);
+    border: 2px solid #ff00ff;
+    box-shadow: 0 0 10px #00ffff;
+}
+.theme-vaporwave .retro-titlebar {
+    background: #ff00ff;
+    color: #00ffff;
+}
+.theme-vaporwave .retro-tab.active {
+    background: #00ffff;
+    color: #ff00ff;
+}
+
+/* Theme: Retro */
+.theme-retro {
+    background: #ff4500;
+    color: #ffff00;
+}
+.theme-retro .retro-window {
+    background: #000080;
+    border: 2px solid #ffff00;
+}
+.theme-retro .retro-titlebar {
+    background: #ff4500;
+    color: #000080;
+}
+.theme-retro .retro-tab.active {
+    background: #ffff00;
+    color: #ff4500;
+}
+
+/* Theme: Frutiger Aero */
+.theme-frutiger {
+    background: linear-gradient(to bottom, #87ceeb, #00b7eb);
+    color: #ffffff;
+}
+.theme-frutiger .retro-window {
+    background: rgba(255, 255, 255, 0.8);
+    border: 2px solid #00b7eb;
+}
+.theme-frutiger .retro-titlebar {
+    background: #00b7eb;
+    color: #ffffff;
+}
+.theme-frutiger .retro-tab.active {
+    background: #87ceeb;
+    color: #00b7eb;
+}
+
+/* Theme: Windows 95 */
+.theme-win95 {
+    background: #008080;
+    color: #000000;
+}
+.theme-win95 .retro-window {
+    background: #c0c0c0;
+    border: 2px outset #ffffff;
+}
+.theme-win95 .retro-titlebar {
+    background: #000080;
+    color: #ffffff;
+}
+.theme-win95 .retro-tab.active {
+    background: #ffffff;
+    color: #000080;
+}
+
+.retro-container {
     width: 100%;
     height: 100vh;
     padding: 5px;
     box-sizing: border-box;
 }
 
-.irc-window {
-    background: #1C2526; /* Dark grey like IRC clients */
-    border: 1px solid #FFFFFF;
-    box-shadow: 2px 2px 5px rgba(255, 255, 255, 0.2);
+.retro-window {
+    animation: glitch 2s infinite alternate;
 }
 
-.irc-titlebar {
-    background: #000080; /* Blue titlebar from Win95 */
-    color: #FFFFFF;
+.retro-titlebar {
     padding: 2px 5px;
     font-weight: bold;
-    border-bottom: 1px solid #FFFFFF;
+    text-shadow: 1px 1px #000000;
 }
 
-.irc-content {
+.retro-content {
     padding: 5px;
     display: flex;
 }
 
-.irc-text {
-    color: #FFFFFF; /* White text for IRC readability */
+.retro-text {
+    text-shadow: 1px 1px #000000;
 }
 
 input, button, textarea {
-    font-family: 'Courier New', monospace;
+    font-family: 'Pixel LCD7', monospace;
     font-size: 12px;
     padding: 3px;
-    border: 1px solid #FFFFFF;
-    background: #000000;
-    color: #FFFFFF;
-}
-
-button {
-    background: #404040; /* Dark grey buttons */
-    border: 1px solid #FFFFFF;
-    cursor: pointer;
+    border: 2px solid #ffffff;
+    background: rgba(0, 0, 0, 0.5);
+    color: #ffffff;
+    transition: all 0.2s ease;
 }
 
 button:hover {
-    background: #606060;
+    transform: scale(1.05);
+    box-shadow: 0 0 5px #ffffff;
 }
 
 button:active {
-    background: #202020;
+    transform: scale(0.95);
 }
 
 .user-list {
-    width: 200px; /* User list on the right */
-    order: 1; /* Moves it to the right */
+    width: 200px;
+    order: 1;
     height: 90vh;
 }
 
-.irc-panel {
+.retro-panel {
     margin-bottom: 5px;
     padding: 5px;
-    background: #1C2526;
-    border: 1px solid #FFFFFF;
 }
 
-.irc-label {
-    background: #000080;
-    color: #FFFFFF;
+.retro-label {
     padding: 2px;
     margin-bottom: 3px;
 }
 
-.irc-user-list {
+.retro-user-list {
     list-style: none;
     padding: 0;
     max-height: 70vh;
     overflow-y: auto;
-    color: #00FF00; /* Green nicknames like IRC */
 }
 
-.irc-user-list li {
+.retro-user-list li {
     padding: 3px;
     display: flex;
     align-items: center;
     cursor: pointer;
+    transition: all 0.2s ease;
 }
 
-.irc-user-list li:hover {
-    background: #000080;
-    color: #FFFFFF;
+.retro-user-list li:hover {
+    transform: translateX(5px);
 }
 
-.irc-user-list li img.profile-pic {
+.retro-user-list li img.profile-pic {
     width: 24px;
     height: 24px;
     margin-right: 5px;
-    border: 1px solid #FFFFFF;
+    border: 2px solid #ffffff;
+    border-radius: 50%;
 }
 
 .main-content {
-    flex: 1; /* Takes remaining space */
+    flex: 1;
     height: 90vh;
     display: flex;
     flex-direction: column;
-    order: 0; /* Chat on the left */
+    order: 0;
 }
 
-.irc-tabs {
+.retro-tabs {
     display: flex;
-    background: #1C2526;
-    border-bottom: 1px solid #FFFFFF;
+    border-bottom: 2px solid #ffffff;
 }
 
-.irc-tab {
+.retro-tab {
     flex: 1;
     padding: 3px;
     text-align: center;
-    background: #404040;
-    border: 1px solid #FFFFFF;
-    color: #FFFFFF;
-}
-
-.irc-tab.active {
-    background: #000080;
-    color: #FFFFFF;
+    border: 2px solid #ffffff;
+    transition: all 0.2s ease;
 }
 
 .chat-box {
     flex: 1;
     padding: 5px;
     overflow-y: auto;
-    background: #000000; /* Black chat background */
-    border: 1px solid #FFFFFF;
+    background: rgba(0, 0, 0, 0.8);
+    border: 2px solid #ffffff;
 }
 
 .message {
@@ -155,52 +213,37 @@ button:active {
     width: 24px;
     height: 24px;
     margin-right: 5px;
-    border: 1px solid #FFFFFF;
+    border: 2px solid #ffffff;
+    border-radius: 50%;
+    cursor: pointer;
 }
 
-.message img.media {
-    max-width: 200px;
+.message img.media, .message video.media {
+    max-width: 150px; /* Smaller media */
     margin-left: 10px;
 }
 
-.video-player {
-    position: relative;
-    width: 250px;
-    height: 180px;
-    background: #000000;
-    border: 1px solid #FFFFFF;
-}
-
-.video-player video {
-    width: 100%;
-    height: 100%;
-}
-
-.video-controls {
-    position: absolute;
-    bottom: 0;
-    width: 100%;
-    background: #404040;
+.hentai-post {
+    margin: 5px 0;
     padding: 5px;
-    display: flex;
-    align-items: center;
+    background: rgba(255, 0, 255, 0.2);
+    border: 2px dashed #00ffff;
+    animation: pulse 1s infinite;
 }
 
-.video-controls button {
-    width: 20px;
-    height: 20px;
-    margin-right: 5px;
+.hentai-post img, .hentai-post video {
+    max-width: 150px;
+    border: 2px solid #ff00ff;
 }
 
-.video-controls input[type="range"] {
-    flex: 1;
-    height: 5px;
+.hentai-post .hentai-info {
+    color: #00ffff;
+    margin-top: 5px;
 }
 
 .chat-input, .profile-edit {
     padding: 5px;
-    background: #1C2526;
-    border-top: 1px solid #FFFFFF;
+    border-top: 2px solid #ffffff;
 }
 
 .media-preview img, .media-preview video {
@@ -208,11 +251,9 @@ button:active {
     margin-top: 3px;
 }
 
-.irc-status {
+.retro-status {
     padding: 3px;
-    background: #000080;
-    color: #FFFFFF;
-    border-top: 1px solid #FFFFFF;
+    border-top: 2px solid #ffffff;
 }
 
 .ad-section {
@@ -230,31 +271,58 @@ button:active {
     transform: translate(-50%, -50%);
     z-index: 1000;
     width: 300px;
+    animation: popup-in 0.3s ease;
 }
 
-.profile-photo {
-    max-width: 80px;
-    border: 1px solid #FFFFFF;
-    margin: 5px 0;
+.profile-widget {
+    width: 250px;
+}
+
+@keyframes glitch {
+    0% { transform: translate(0); }
+    20% { transform: translate(-2px, 2px); }
+    40% { transform: translate(2px, -2px); }
+    60% { transform: translate(-2px, 0); }
+    80% { transform: translate(2px, 0); }
+    100% { transform: translate(0); }
+}
+
+@keyframes pulse {
+    0% { box-shadow: 0 0 5px #00ffff; }
+    50% { box-shadow: 0 0 15px #00ffff; }
+    100% { box-shadow: 0 0 5px #00ffff; }
+}
+
+@keyframes popup-in {
+    from { transform: translate(-50%, -60%) scale(0.8); opacity: 0; }
+    to { transform: translate(-50%, -50%) scale(1); opacity: 1; }
 }
 
 @media (max-width: 768px) {
+    .retro-content {
+        flex-direction: column;
+    }
     .user-list {
         width: 100%;
         order: 0;
         height: auto;
+        max-height: 20vh;
     }
     .main-content {
         order: 1;
     }
-    .irc-tabs {
-        flex-direction: row;
+    .retro-tabs {
+        flex-wrap: wrap;
     }
-    .irc-tab {
+    .retro-tab {
+        flex: 1 1 50%;
         padding: 2px;
         font-size: 10px;
     }
     .chat-box {
-        height: 50vh;
+        height: 60vh;
+    }
+    .popup {
+        width: 90%;
     }
 }

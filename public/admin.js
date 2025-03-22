@@ -7,7 +7,7 @@ export function initializeAdmin() {
     };
 
     if (localStorage.getItem('isAdmin') === 'true') {
-        document.querySelector('.win95-tabs').innerHTML += `<button class="win95-tab" onclick="document.getElementById('adminPanel').style.display = 'block'">Admin</button>`;
+        document.querySelector('.retro-tabs').innerHTML += `<button class="retro-tab" onclick="document.getElementById('adminPanel').style.display = 'block'">Admin</button>`;
     }
 
     elements.createForumButton.addEventListener('click', () => {

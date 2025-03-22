@@ -3,16 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>miCP - IRC Chat</title>
+    <title>miCP - VaporChat</title>
     <link rel="stylesheet" href="/styles.css">
-    <link href="https://fonts.googleapis.com/css2?family=MS+Sans+Serif&display=swap" rel="stylesheet">
     <link rel="preload" href="/default-profile.png" as="image">
 </head>
-<body>
-    <div class="irc-container">
-        <div class="irc-window" id="welcomeScreen">
-            <div class="irc-titlebar">miCP - Login</div>
-            <div class="irc-content">
+<body class="theme-vaporwave">
+    <div class="retro-container">
+        <div class="retro-window" id="welcomeScreen">
+            <div class="retro-titlebar">miCP - Login</div>
+            <div class="retro-content">
                 <form id="loginForm">
                     <input type="text" id="usernameInput" placeholder="Nick (máx. 15)" maxlength="15" autocomplete="username" />
                     <input type="password" id="passwordInput" placeholder="Senha (admin: 681227)" style="display: none;" autocomplete="current-password" />
@@ -21,21 +20,21 @@
                     <div id="photoPreview" class="media-preview"></div>
                     <button type="submit" id="joinButton">Conectar</button>
                     <button type="button" id="adminLoginButton" onclick="toggleAdminLogin()">Admin</button>
-                    <div id="errorMessage" class="irc-text"></div>
+                    <div id="errorMessage" class="retro-text"></div>
                 </form>
             </div>
         </div>
-        <div class="irc-window" id="chatContainer" style="display: none;">
-            <div class="irc-titlebar">miCP - <span id="currentUser"></span></div>
-            <div class="irc-content">
+        <div class="retro-window" id="chatContainer" style="display: none;">
+            <div class="retro-titlebar">miCP - <span id="currentUser"></span></div>
+            <div class="retro-content">
                 <div class="user-list">
-                    <div class="irc-panel">
-                        <div class="irc-label">Online</div>
-                        <ul id="userList" class="irc-user-list"></ul>
+                    <div class="retro-panel">
+                        <div class="retro-label">Online</div>
+                        <ul id="userList" class="retro-user-list"></ul>
                         <button id="logoutButton">Sair</button>
                     </div>
-                    <div class="irc-panel ad-section">
-                        <div class="irc-label">Ad</div>
+                    <div class="retro-panel ad-section">
+                        <div class="retro-label">Ad</div>
                         <div class="adsterra-banner">
                             <script type="text/javascript">
                                 atOptions = { 'key': '24e581f128309350f45e817f62637407', 'format': 'iframe', 'height': 250, 'width': 300, 'params': {} };
@@ -45,13 +44,13 @@
                     </div>
                 </div>
                 <div class="main-content">
-                    <div class="irc-tabs">
-                        <button class="irc-tab active" id="forumTab" onclick="switchTab('#main')">Fórum</button>
-                        <button class="irc-tab" id="privateTab">Privado</button>
-                        <button class="irc-tab" id="profileTab" onclick="switchTab('#profile')">Perfil</button>
-                        <button class="irc-tab" id="hentaiTab" onclick="switchTab('#hentai')">Hentai</button>
+                    <div class="retro-tabs">
+                        <button class="retro-tab active" id="forumTab" onclick="switchTab('#main')">Fórum</button>
+                        <button class="retro-tab" id="privateTab">Privado</button>
+                        <button class="retro-tab" id="profileTab" onclick="switchTab('#profile')">Perfil</button>
+                        <button class="retro-tab" id="hentaiTab" onclick="switchTab('#hentai')">Hentai</button>
                     </div>
-                    <div class="chat-box irc-text" id="chatBox"></div>
+                    <div class="chat-box retro-text" id="chatBox"></div>
                     <div class="chat-input" id="chatInput" style="display: none;">
                         <input type="text" id="messageInput" placeholder="Digite aqui..." />
                         <input type="file" id="mediaInput" accept="image/*,video/*" style="display: none;" />
@@ -64,11 +63,18 @@
                         <input type="file" id="editPhotoInput" accept="image/*" style="display: none;" />
                         <button onclick="document.getElementById('editPhotoInput').click()">Alterar Foto</button>
                         <textarea id="editBioInput" placeholder="Sua bio (máx. 100)" maxlength="100"></textarea>
+                        <input type="color" id="profileColorInput" value="#ff00ff" />
+                        <select id="themeSelect">
+                            <option value="theme-vaporwave">Vaporwave</option>
+                            <option value="theme-retro">Retro</option>
+                            <option value="theme-frutiger">Frutiger Aero</option>
+                            <option value="theme-win95">Windows 95</option>
+                        </select>
                         <button id="saveProfileButton">Salvar</button>
                     </div>
-                    <div class="irc-status" id="statusBar"></div>
+                    <div class="retro-status" id="statusBar"></div>
                     <div class="ad-section bottom-ad">
-                        <div class="irc-label">Ad</div>
+                        <div class="retro-label">Ad</div>
                         <div class="adsterra-footer">
                             <script type="text/javascript">
                                 atOptions = { 'key': '24e581f128309350f45e817f62637407', 'format': 'iframe', 'height': 90, 'width': 728, 'params': {} };
@@ -79,12 +85,21 @@
                 </div>
             </div>
         </div>
-        <div class="irc-window popup" id="adminPanel" style="display: none;">
-            <div class="irc-titlebar">Painel Admin</div>
-            <div class="irc-content">
+        <div class="retro-window popup" id="adminPanel" style="display: none;">
+            <div class="retro-titlebar">Painel Admin</div>
+            <div class="retro-content">
                 <input type="text" id="newForumInput" placeholder="Nome do novo fórum" />
                 <button id="createForumButton">Criar Fórum</button>
                 <button onclick="closePopup('adminPanel')">Fechar</button>
+            </div>
+        </div>
+        <div class="retro-window popup profile-widget" id="profileWidget" style="display: none;">
+            <div class="retro-titlebar">Perfil</div>
+            <div class="retro-content">
+                <img id="widgetPhoto" src="" alt="Foto" class="profile-photo" />
+                <div id="widgetName" class="retro-text"></div>
+                <div id="widgetBio" class="retro-text"></div>
+                <button onclick="closePopup('profileWidget')">Fechar</button>
             </div>
         </div>
     </div>

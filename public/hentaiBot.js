@@ -2,22 +2,22 @@ export function initializeHentaiBot() {
     const { db, ref, push } = window.firebaseApp;
 
     function fetchHentai() {
-        // Mock data since Gelbooru API doesn't support CORS and proxy failed
-        const mockPosts = [
-            { tags: "anime girl", file_url: "https://via.placeholder.com/300x200.png?text=Hentai+1" },
-            { tags: "cute neko", file_url: "https://via.placeholder.com/300x200.png?text=Hentai+2" },
-            { tags: "maid outfit", file_url: "https://via.placeholder.com/300x200.png?text=Hentai+3" }
-        ];
-        const post = mockPosts[Math.floor(Math.random() * mockPosts.length)];
-        const message = {
-            user: 'HentaiBot',
-            text: `Nova imagem: ${post.tags}`,
-            media: { filePath: post.file_url, type: 'image' },
-            timestamp: Date.now(),
-            color: '#ff00ff',
-            photo: '/default-profile.png'
-        };
-        push(ref(db, 'hentaiMessages'), message);
+        fetch('https://gelbooru.com/index.php?page=dapi&s=post&q=index&json=1&limit=1')
+            .then(response => response.json())
+            .then(data => {
+                if (data.post && data.post.length > 0) {
+                    const post = data.post[0];
+                    const message = {
+                        user: 'HentaiBot',
+                        text: `Nova imagem: ${post.tags}`,
+                        media: { filePath: post.file_url, type: 'video' },
+                        timestamp: Date.now(),
+                        color: '#ff00ff',
+                        photo: '/default-profile.png'
+                    };
+                    push(ref(db, 'hentaiMessages'), message);
+                }
+            }).catch(err => console.error('HentaiBot error:', err));
     }
 
     setInterval(fetchHentai, 60000); // Every 1 minute

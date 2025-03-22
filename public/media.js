@@ -26,7 +26,7 @@ export function initializeMedia() {
                     user: localStorage.getItem('username'),
                     media: mediaData,
                     timestamp: Date.now(),
-                    color: window.generateColor(),
+                    color: localStorage.getItem('color') || window.generateColor(),
                     photo: localStorage.getItem('photo')
                 };
                 window.pushMessage(message, window.currentChat);
@@ -42,8 +42,10 @@ export function initializeMedia() {
     elements.saveProfileButton.addEventListener('click', () => {
         const file = elements.editPhotoInput.files[0];
         const bio = document.getElementById('editBioInput').value.trim();
-        if (file) uploadPhoto(file, (photoUrl) => updateProfile(photoUrl, bio));
-        else updateProfile(localStorage.getItem('photo'), bio);
+        const color = document.getElementById('profileColorInput').value;
+        const theme = document.getElementById('themeSelect').value;
+        if (file) uploadPhoto(file, (photoUrl) => updateProfile(photoUrl, bio, theme, color));
+        else updateProfile(localStorage.getItem('photo'), bio, theme, color);
     });
 
     async function uploadPhoto(file, callback) {
@@ -77,11 +79,14 @@ export function initializeMedia() {
         });
     }
 
-    function updateProfile(photo, bio) {
+    function updateProfile(photo, bio, theme, color) {
         const { db, ref, update } = window.firebaseApp;
-        update(ref(db, 'users/' + localStorage.getItem('userId')), { photo, bio }).then(() => {
+        update(ref(db, 'users/' + localStorage.getItem('userId')), { photo, bio, theme, color }).then(() => {
             localStorage.setItem('photo', photo);
             localStorage.setItem('bio', bio);
+            localStorage.setItem('theme', theme);
+            localStorage.setItem('color', color);
+            document.body.className = theme;
         });
     }
 

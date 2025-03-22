@@ -21,7 +21,11 @@ export function initializeChat() {
         chatInput: document.getElementById('chatInput'),
         statusBar: document.getElementById('statusBar'),
         loginForm: document.getElementById('loginForm'),
-        profileEdit: document.getElementById('profileEdit')
+        profileEdit: document.getElementById('profileEdit'),
+        profileWidget: document.getElementById('profileWidget'),
+        widgetPhoto: document.getElementById('widgetPhoto'),
+        widgetName: document.getElementById('widgetName'),
+        widgetBio: document.getElementById('widgetBio')
     };
 
     let username = localStorage.getItem('username') || '';
@@ -46,7 +50,7 @@ export function initializeChat() {
         elements.passwordInput.style.display = elements.passwordInput.style.display === 'none' ? 'block' : 'none';
     }
 
-    if (username) loginUser(username, userId, localStorage.getItem('photo'), localStorage.getItem('bio'));
+    if (username) loginUser(username, userId, localStorage.getItem('photo'), localStorage.getItem('bio'), localStorage.getItem('theme'), localStorage.getItem('color'));
     else elements.welcomeScreen.style.display = 'block';
 
     elements.loginForm.addEventListener('submit', (e) => {
@@ -58,13 +62,13 @@ export function initializeChat() {
             return;
         }
         elements.errorMessage.textContent = 'Conectando...';
-        loginUser(username, userId, null, null, password === '681227' && username === 'admin');
+        loginUser(username, userId, null, null, null, null, password === '681227' && username === 'admin');
     });
 
-    function loginUser(username, userId, photo = '/default-profile.png', bio = 'Sem bio ainda.', isAdmin = false) {
+    function loginUser(username, userId, photo = '/default-profile.png', bio = 'Sem bio ainda.', theme = 'theme-vaporwave', color = generateColor(), isAdmin = false) {
         const userData = {
-            username, userId, online: true, photo, bio, joined: Date.now(),
-            color: generateColor(), messageCount: 0, lastSeen: Date.now(), admin: isAdmin
+            username, userId, online: true, photo, bio, theme, color, joined: Date.now(),
+            messageCount: 0, lastSeen: Date.now(), admin: isAdmin
         };
         set(ref(db, 'users/' + userId), userData).then(() => {
             elements.welcomeScreen.style.display = 'none';
@@ -73,7 +77,10 @@ export function initializeChat() {
             localStorage.setItem('username', username);
             localStorage.setItem('photo', photo);
             localStorage.setItem('bio', bio);
+            localStorage.setItem('theme', theme);
+            localStorage.setItem('color', color);
             localStorage.setItem('isAdmin', isAdmin);
+            document.body.className = theme;
             updateStatusBar();
             switchTab('#main');
         }).catch(err => {
@@ -90,7 +97,7 @@ export function initializeChat() {
             const li = document.createElement('li');
             li.innerHTML = `<img src="${user.photo}" class="profile-pic" alt="${user.username}" onerror="this.src='/default-profile.png'"> ${user.username}`;
             li.style.color = user.color;
-            li.onclick = () => switchTab(user.username);
+            li.onclick = () => showProfileWidget(user);
             elements.userList.appendChild(li);
         });
         updateStatusBar();
@@ -104,6 +111,8 @@ export function initializeChat() {
             if (user) {
                 document.getElementById('editPhotoPreview').src = user.photo;
                 document.getElementById('editBioInput').value = user.bio;
+                document.getElementById('profileColorInput').value = user.color;
+                document.getElementById('themeSelect').value = user.theme;
             }
             return;
         }
@@ -120,7 +129,7 @@ export function initializeChat() {
                 data.id = child.key;
                 if (!messageIds.has(data.id)) {
                     messageIds.add(data.id);
-                    displayMessage(data);
+                    displayMessage(data, target === '#hentai');
                 }
             });
         }, { onlyOnce: false });
@@ -151,16 +160,27 @@ export function initializeChat() {
         });
     }
 
-    function displayMessage(data) {
+    function displayMessage(data, isHentai = false) {
         const div = document.createElement('div');
-        div.className = 'message';
+        div.className = isHentai ? 'hentai-post' : 'message';
         div.dataset.id = data.id;
-        const mediaContent = data.media ? `<video src="${data.media.filePath}" class="media" controls></video>` : '';
-        div.innerHTML = `
-            <img src="${data.photo}" class="profile-pic" alt="${data.user}" onerror="this.src='/default-profile.png'">
-            <span style="color: ${data.color}">${data.user}</span>: ${data.text || ''}
+        let mediaContent = '';
+        if (data.media) {
+            mediaContent = data.media.type === 'video' ? 
+                `<video src="${data.media.filePath}" class="media" controls></video>` : 
+                `<img src="${data.media.filePath}" class="media" alt="Media">`;
+        }
+        div.innerHTML = isHentai ? `
             ${mediaContent}
-            <span style="color: #000080">[${new Date(data.timestamp).toLocaleTimeString()}]</span>
+            <div class="hentai-info">
+                <span style="color: ${data.color}">${data.user}</span> - Tags: ${data.text}
+                <span>[${new Date(data.timestamp).toLocaleTimeString()}]</span>
+            </div>
+        ` : `
+            <img src="${data.photo}" class="profile-pic" alt="${data.user}" onerror="this.src='/default-profile.png'" onclick="showProfileWidget(userProfiles.get('${data.user}'))">
+            <span style="color: ${data.color}" onclick="showProfileWidget(userProfiles.get('${data.user}'))">${data.user}</span>: ${data.text || ''}
+            ${mediaContent}
+            <span style="color: #00ffff">[${new Date(data.timestamp).toLocaleTimeString()}]</span>
         `;
         elements.chatBox.appendChild(div);
         elements.chatBox.scrollTop = elements.chatBox.scrollHeight;
@@ -183,8 +203,19 @@ export function initializeChat() {
         elements.statusBar.textContent = `Nick: ${username} | Msgs: ${user?.messageCount || 0} | Online: ${userProfiles.size}`;
     }
 
+    function showProfileWidget(user) {
+        if (!user) return;
+        elements.widgetPhoto.src = user.photo || '/default-profile.png';
+        elements.widgetName.textContent = user.username;
+        elements.widgetBio.textContent = user.bio || 'Sem bio ainda.';
+        elements.profileWidget.style.display = 'block';
+    }
+
     window.sendMessage = sendMessage;
     window.switchTab = switchTab;
     window.toggleAdminLogin = toggleAdminLogin;
     window.generateColor = generateColor;
+    window.showProfileWidget = showProfileWidget;
+    window.closePopup = (id) => document.getElementById(id).style.display = 'none';
+    window.userProfiles = userProfiles; // Expose for onclick handlers
 }
