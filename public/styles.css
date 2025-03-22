@@ -1,12 +1,7 @@
-@font-face {
-    font-family: 'Pixel LCD7';
-    src: url('https://db.onlinewebfonts.com/t/6a788a6451600cf07f7b5a7e7b038c40.ttf') format('truetype');
-}
-
 body {
     margin: 0;
     padding: 0;
-    font-family: 'Pixel LCD7', monospace;
+    font-family: 'VT323', 'Courier New', monospace;
     font-size: 14px;
     height: 100vh;
     overflow: auto;
@@ -94,7 +89,7 @@ body {
 }
 
 .retro-window {
-    animation: glitch 2s infinite alternate;
+    /* Remove animation */
 }
 
 .retro-titlebar {
@@ -171,7 +166,7 @@ button:active {
     height: 24px;
     margin-right: 5px;
     border: 2px solid #ffffff;
-    border-radius: 50%;
+    border-radius: 0;
 }
 
 .main-content {
@@ -214,7 +209,7 @@ button:active {
     height: 24px;
     margin-right: 5px;
     border: 2px solid #ffffff;
-    border-radius: 50%;
+    border-radius: 0;
     cursor: pointer;
 }
 
@@ -228,7 +223,7 @@ button:active {
     padding: 5px;
     background: rgba(255, 0, 255, 0.2);
     border: 2px dashed #00ffff;
-    animation: pulse 1s infinite;
+    /* Remove animation */
 }
 
 .hentai-post img, .hentai-post video {
@@ -271,31 +266,21 @@ button:active {
     transform: translate(-50%, -50%);
     z-index: 1000;
     width: 300px;
-    animation: popup-in 0.3s ease;
+    /* Remove animation */
 }
 
 .profile-widget {
     width: 250px;
 }
 
-@keyframes glitch {
-    0% { transform: translate(0); }
-    20% { transform: translate(-2px, 2px); }
-    40% { transform: translate(2px, -2px); }
-    60% { transform: translate(-2px, 0); }
-    80% { transform: translate(2px, 0); }
-    100% { transform: translate(0); }
+.hacker-message:hover {
+    text-shadow: 0 0 5px #00ff00, 0 0 10px #00ff00;
+    /* Remove animation */
 }
 
-@keyframes pulse {
-    0% { box-shadow: 0 0 5px #00ffff; }
-    50% { box-shadow: 0 0 15px #00ffff; }
-    100% { box-shadow: 0 0 5px #00ffff; }
-}
-
-@keyframes popup-in {
-    from { transform: translate(-50%, -60%) scale(0.8); opacity: 0; }
-    to { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+.neon-button {
+    /* ... existing code ... */
+    /* Remove animation */
 }
 
 @media (max-width: 768px) {
@@ -325,4 +310,13 @@ button:active {
     .popup {
         width: 90%;
     }
+}
+
+/* Add styling for profile-photo class as well */
+.profile-photo {
+    width: 80px;
+    height: 80px;
+    border: 2px solid #ffffff;
+    border-radius: 0;
+    margin-bottom: 10px;
 }

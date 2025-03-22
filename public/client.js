@@ -167,8 +167,8 @@ export function initializeChat() {
         let mediaContent = '';
         if (data.media) {
             mediaContent = data.media.type === 'video' ? 
-                `<video src="${data.media.filePath}" class="media" controls></video>` : 
-                `<img src="${data.media.filePath}" class="media" alt="Media">`;
+                `<video src="${data.media.filePath}" class="media" controls onerror="this.style.display='none'"></video>` : 
+                `<img src="${data.media.filePath}" class="media" alt="Media" onerror="this.src='/default-profile.png'; this.onerror=null;">`;
         }
         div.innerHTML = isHentai ? `
             ${mediaContent}
@@ -177,7 +177,7 @@ export function initializeChat() {
                 <span>[${new Date(data.timestamp).toLocaleTimeString()}]</span>
             </div>
         ` : `
-            <img src="${data.photo}" class="profile-pic" alt="${data.user}" onerror="this.src='/default-profile.png'" onclick="showProfileWidget(userProfiles.get('${data.user}'))">
+            <img src="${data.photo}" class="profile-pic" alt="${data.user}" onerror="this.src='/default-profile.png';" onclick="showProfileWidget(userProfiles.get('${data.user}'))">
             <span style="color: ${data.color}" onclick="showProfileWidget(userProfiles.get('${data.user}'))">${data.user}</span>: ${data.text || ''}
             ${mediaContent}
             <span style="color: #00ffff">[${new Date(data.timestamp).toLocaleTimeString()}]</span>

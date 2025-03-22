@@ -4,7 +4,7 @@ export function initializeHentaiBot() {
     function fetchHentai() {
         // Option 1: Using a CORS proxy service
         const proxyUrl = 'https://corsproxy.io/?';
-        const targetUrl = 'https://gelbooru.com/index.php?page=dapi&s=post&q=index&json=1&limit=1';
+        const targetUrl = 'https://gelbooru.com/index.php?page=dapi&s=post&q=index&json=1&limit=1&tags=-video';
         
         fetch(proxyUrl + encodeURIComponent(targetUrl))
             .then(response => response.json())
@@ -14,7 +14,7 @@ export function initializeHentaiBot() {
                     const message = {
                         user: 'HentaiBot',
                         text: `Nova imagem: ${post.tags}`,
-                        media: { filePath: post.file_url, type: 'video' },
+                        media: { filePath: post.file_url, type: 'image' },
                         timestamp: Date.now(),
                         color: '#ff00ff',
                         photo: '/default-profile.png'
