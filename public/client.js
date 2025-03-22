@@ -80,7 +80,7 @@ export function initializeChat() {
         };
         set(ref(db, 'users/' + userId), userData).then(() => {
             elements.welcomeScreen.style.display = 'none';
-            elements.chatContainer.style.display = 'block';
+            elements.chatContainer.style.display = 'flex';
             elements.currentUser.textContent = username;
             localStorage.setItem('username', username);
             localStorage.setItem('photo', photo);
@@ -162,7 +162,7 @@ export function initializeChat() {
     }
 
     async function uploadPhoto(file, callback) {
-        const compressedFile = await compressFile(file, 0.7, 100); // Smaller for profile
+        const compressedFile = await compressFile(file, 0.7, 100);
         const fileRef = storageRef(storage, 'profiles/' + userId + '-' + Date.now() + '.jpg');
         uploadBytes(fileRef, compressedFile).then((snapshot) => {
             getDownloadURL(snapshot.ref).then(callback).catch(err => {
@@ -174,7 +174,7 @@ export function initializeChat() {
     }
 
     async function uploadMedia(file, callback) {
-        const compressedFile = await compressFile(file, 0.8, 600); // Optimized for media
+        const compressedFile = await compressFile(file, 0.8, 600);
         const fileRef = storageRef(storage, 'uploads/' + Date.now() + '.media');
         uploadBytes(fileRef, compressedFile).then((snapshot) => {
             getDownloadURL(snapshot.ref).then((url) => {
@@ -311,23 +311,125 @@ export function initializeChat() {
     function initWebGLVideo(container) {
         const video = document.createElement('video');
         video.src = container.dataset.src;
-        video.controls = true;
+        video.muted = true; // Mute initially to avoid autoplay issues
         const canvas = document.createElement('canvas');
-        canvas.width = 150;
-        canvas.height = 100;
+        canvas.width = 200;
+        canvas.height = 150;
         const gl = canvas.getContext('webgl');
-        if (!gl) return container.appendChild(video);
-        container.appendChild(canvas);
+        if (!gl) {
+            container.innerHTML = `<video src="${video.src}" controls></video>`;
+            return;
+        }
+
+        // WebGL Setup
+        const vertexShaderSource = `
+            attribute vec2 a_position;
+            attribute vec2 a_texCoord;
+            varying vec2 v_texCoord;
+            void main() {
+                gl_Position = vec4(a_position, 0, 1);
+                v_texCoord = a_texCoord;
+            }
+        `;
+        const fragmentShaderSource = `
+            precision mediump float;
+            varying vec2 v_texCoord;
+            uniform sampler2D u_texture;
+            void main() {
+                gl_FragColor = texture2D(u_texture, v_texCoord);
+            }
+        `;
+
+        const vertexShader = gl.createShader(gl.FRAGMENT_SHADER);
+        gl.shaderSource(vertexShader, fragmentShaderSource);
+        gl.compileShader(vertexShader);
+        const fragmentShader = gl.createShader(gl.VERTEX_SHADER);
+        gl.shaderSource(fragmentShader, vertexShaderSource);
+        gl.compileShader(fragmentShader);
+
+        const program = gl.createProgram();
+        gl.attachShader(program, vertexShader);
+        gl.attachShader(program, fragmentShader);
+        gl.linkProgram(program);
+        gl.useProgram(program);
+
+        const positionBuffer = gl.createBuffer();
+        gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
+        gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 1, -1, -1, 1, 1, 1]), gl.STATIC_DRAW);
+
+        const texCoordBuffer = gl.createBuffer();
+        gl.bindBuffer(gl.ARRAY_BUFFER, texCoordBuffer);
+        gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([0, 1, 1, 1, 0, 0, 1, 0]), gl.STATIC_DRAW);
+
+        const positionLocation = gl.getAttribLocation(program, 'a_position');
+        const texCoordLocation = gl.getAttribLocation(program, 'a_texCoord');
+        const textureLocation = gl.getUniformLocation(program, 'u_texture');
+
+        gl.enableVertexAttribArray(positionLocation);
+        gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
+        gl.vertexAttribPointer(positionLocation, 2, gl.FLOAT, false, 0, 0);
+
+        gl.enableVertexAttribArray(texCoordLocation);
+        gl.bindBuffer(gl.ARRAY_BUFFER, texCoordBuffer);
+        gl.vertexAttribPointer(texCoordLocation, 2, gl.FLOAT, false, 0, 0);
+
         const texture = gl.createTexture();
         gl.bindTexture(gl.TEXTURE_2D, texture);
-        video.onplay = () => {
-            function render() {
-                gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, video);
-                requestAnimationFrame(render);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+
+        // Video Player UI
+        const controls = document.createElement('div');
+        controls.className = 'video-controls';
+        controls.innerHTML = `
+            <button class="play-pause">▶</button>
+            <input type="range" class="seek" min="0" max="100" value="0">
+            <input type="range" class="volume" min="0" max="1" step="0.1" value="1">
+        `;
+        container.appendChild(canvas);
+        container.appendChild(controls);
+
+        const playPauseBtn = controls.querySelector('.play-pause');
+        const seekBar = controls.querySelector('.seek');
+        const volumeBar = controls.querySelector('.volume');
+
+        playPauseBtn.addEventListener('click', () => {
+            if (video.paused) {
+                video.play().catch(err => console.error('Play error:', err));
+                playPauseBtn.textContent = '⏸';
+            } else {
+                video.pause();
+                playPauseBtn.textContent = '▶';
             }
-            render();
-        };
-        video.play();
+        });
+
+        video.addEventListener('loadedmetadata', () => {
+            seekBar.max = video.duration;
+        });
+
+        video.addEventListener('timeupdate', () => {
+            seekBar.value = video.currentTime;
+        });
+
+        seekBar.addEventListener('input', () => {
+            video.currentTime = seekBar.value;
+        });
+
+        volumeBar.addEventListener('input', () => {
+            video.volume = volumeBar.value;
+            video.muted = video.volume === 0;
+        });
+
+        function render() {
+            gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, video);
+            gl.clear(gl.COLOR_BUFFER_BIT);
+            gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+            requestAnimationFrame(render);
+        }
+
+        video.addEventListener('canplay', () => {
+            render(); // Start rendering only when video is ready
+        });
     }
 
     function notifyUser(message) {
@@ -344,7 +446,6 @@ export function initializeChat() {
         });
     }
 
-    // mIRC-like Commands
     window.commands = {
         '/nick': (newNick) => update(ref(db, 'users/' + userId), { username: newNick }),
         '/color': (color) => update(ref(db, 'users/' + userId), { color }),
@@ -388,14 +489,6 @@ export function initializeChat() {
     function sendPrivateMessage(user, msg) {
         pushMessage({ user: username, text: msg, timestamp: Date.now(), color: userProfiles.get(username).color, photo: userProfiles.get(username).photo }, user);
     }
-
-    // WebSocket Fix (Removed placeholder, using Firebase instead)
-    // If you have a WebSocket server, replace with real URL and uncomment:
-    // const socket = new WebSocket('wss://your-real-server-url');
-    // socket.onmessage = (event) => {
-    //     const data = JSON.parse(event.data);
-    //     if (data.type === 'message') displayMessage(data);
-    // };
 
     window.sendMessage = sendMessage;
     window.switchTab = switchTab;
